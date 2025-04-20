@@ -1,0 +1,250 @@
+{
+  "schema_version": "1.0.0",
+  "records": [
+    {
+      "collectionId": "y92LpmGU0B6RgQkvw9xM",
+      "type": "collection",
+      "deleted": false,
+      "id": "vbiYcVYnnuvBKStOF09b",
+      "name": "Identity Service",
+      "description": "",
+      "data": {
+        "variables": {},
+        "auth": {
+          "currentAuthType": "INHERIT",
+          "authConfigStore": {}
+        }
+      }
+    },
+    {
+      "collectionId": "vbiYcVYnnuvBKStOF09b",
+      "deleted": false,
+      "id": "OUhIpLmfBMgaYvXKtCXd",
+      "name": "delete-account (bearer token)",
+      "data": {
+        "auth": {
+          "currentAuthType": "BEARER_TOKEN",
+          "authConfigStore": {
+            "BEARER_TOKEN": {
+              "bearer": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJHMTggRWNvbW1lcmNlIiwic3ViIjoiYWRtaW5HMTgiLCJleHAiOjE3NDA4Mzk0NzQsImlhdCI6MTc0MDgzNTg3NCwianRpIjoiYTA4MWQ3NjMtNThmOS00MGZmLTg2M2UtYWM5YTMzYWNhYjFhIiwic2NvcGUiOiJST0xFX0FETUlOIDAwMDIgMDAwMSAxMTExIDAwMDAgMDAwMyJ9.FFo9QBW3uERLbHzmh4aFaY69hN77Bw6zf5UsFifShb612o9g2XKjSj2Ia7jyq7impxyly2BDDIrHpLcgUKz1iA"
+            }
+          }
+        },
+        "scripts": {
+          "preRequest": "",
+          "postResponse": ""
+        },
+        "request": {
+          "contentType": "text/plain",
+          "queryParams": [],
+          "method": "PUT",
+          "body": null,
+          "headers": [],
+          "url": "http://localhost:8080/identity/users/3cc53345-5752-4c89-9cf9-1ecfe725d13c"
+        }
+      },
+      "type": "api"
+    },
+    {
+      "data": {
+        "request": {
+          "body": null,
+          "contentType": "text/plain",
+          "headers": [],
+          "url": "http://localhost:8080/identity/users/my-info",
+          "method": "GET",
+          "queryParams": []
+        },
+        "scripts": {
+          "postResponse": "",
+          "preRequest": ""
+        },
+        "auth": {
+          "currentAuthType": "BEARER_TOKEN",
+          "authConfigStore": {
+            "BEARER_TOKEN": {
+              "bearer": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJHMTggRWNvbW1lcmNlIiwic3ViIjoiam9objEyMyIsImV4cCI6MTc0NDM5NTM5OSwiaWF0IjoxNzQ0MzkxNzk5LCJqdGkiOiI2YjEyNDllOC03ZWE2LTQwOGQtODE2MS1lOTlkNmY1ZWNhM2MiLCJzY29wZSI6IlJPTEVfVVNFUiAwMDAwIn0.VQUXB0QusvxZfvHjRoVQGY8xb8qq7QOWHC0dybyaORG8i75mPswj2aGDabT-tIG51Cpy3RJG3Yg96VHDkpElRQ"
+            }
+          }
+        }
+      },
+      "name": "get-my-info (bearer token)",
+      "type": "api",
+      "deleted": false,
+      "id": "eY07boeHEVFLfqdoiBcN",
+      "collectionId": "vbiYcVYnnuvBKStOF09b"
+    },
+    {
+      "data": {
+        "scripts": {
+          "postResponse": "",
+          "preRequest": ""
+        },
+        "auth": {
+          "authConfigStore": {},
+          "currentAuthType": "INHERIT"
+        },
+        "request": {
+          "contentType": "application/json",
+          "body": "{\n  \"token\": \"eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJHMTggRWNvbW1lcmNlIiwic3ViIjoiam9objEyMyIsImV4cCI6MTc0NDM5NTM5OSwiaWF0IjoxNzQ0MzkxNzk5LCJqdGkiOiI2YjEyNDllOC03ZWE2LTQwOGQtODE2MS1lOTlkNmY1ZWNhM2MiLCJzY29wZSI6IlJPTEVfVVNFUiAwMDAwIn0.VQUXB0QusvxZfvHjRoVQGY8xb8qq7QOWHC0dybyaORG8i75mPswj2aGDabT-tIG51Cpy3RJG3Yg96VHDkpElRQ\"\n}\n",
+          "method": "POST",
+          "bodyContainer": {
+            "text": "{\n  \"token\": \"eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJHMTggRWNvbW1lcmNlIiwic3ViIjoiam9objEyMyIsImV4cCI6MTc0NDM5NTM5OSwiaWF0IjoxNzQ0MzkxNzk5LCJqdGkiOiI2YjEyNDllOC03ZWE2LTQwOGQtODE2MS1lOTlkNmY1ZWNhM2MiLCJzY29wZSI6IlJPTEVfVVNFUiAwMDAwIn0.VQUXB0QusvxZfvHjRoVQGY8xb8qq7QOWHC0dybyaORG8i75mPswj2aGDabT-tIG51Cpy3RJG3Yg96VHDkpElRQ\"\n}\n",
+            "form": []
+          },
+          "url": "http://localhost:8080/identity/auth/introspect",
+          "queryParams": [],
+          "headers": [
+            {
+              "id": 0.041162392312833695,
+              "value": "application/json",
+              "isEnabled": true,
+              "key": "Content-Type"
+            }
+          ]
+        }
+      },
+      "type": "api",
+      "id": "UIzicUsHnzO7G3HFzhHR",
+      "deleted": false,
+      "collectionId": "vbiYcVYnnuvBKStOF09b",
+      "name": "Introspect"
+    },
+    {
+      "id": "omQTunTaLVo12GLPz4d4",
+      "data": {
+        "scripts": {
+          "postResponse": "",
+          "preRequest": ""
+        },
+        "request": {
+          "url": "https://app.requestly.io/echo",
+          "contentType": "text/plain",
+          "method": "GET",
+          "headers": [],
+          "queryParams": [],
+          "body": null
+        },
+        "auth": {
+          "currentAuthType": "INHERIT",
+          "authConfigStore": {}
+        }
+      },
+      "deleted": false,
+      "collectionId": "vbiYcVYnnuvBKStOF09b",
+      "type": "api",
+      "name": "logout"
+    },
+    {
+      "name": "refresh-token",
+      "type": "api",
+      "id": "mTCGqib7bJuqk06JfHbT",
+      "collectionId": "vbiYcVYnnuvBKStOF09b",
+      "data": {
+        "scripts": {
+          "preRequest": "",
+          "postResponse": ""
+        },
+        "request": {
+          "contentType": "text/plain",
+          "headers": [],
+          "body": null,
+          "url": "https://app.requestly.io/echo",
+          "method": "GET",
+          "queryParams": []
+        },
+        "auth": {
+          "currentAuthType": "INHERIT",
+          "authConfigStore": {}
+        }
+      },
+      "deleted": false
+    },
+    {
+      "deleted": false,
+      "name": "sign-in",
+      "id": "OZL2Ek3VDwx33KCD1o1U",
+      "type": "api",
+      "collectionId": "vbiYcVYnnuvBKStOF09b",
+      "data": {
+        "request": {
+          "headers": [
+            {
+              "isEnabled": true,
+              "key": "Content-Type",
+              "id": 0.6799438380158875,
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"username\": \"john123\",\n  \"password\": \"secret123\"\n}\n",
+          "url": "http://localhost:8080/identity/auth/log-in",
+          "method": "POST",
+          "bodyContainer": {
+            "text": "{\n  \"username\": \"john123\",\n  \"password\": \"secret123\"\n}\n",
+            "form": []
+          },
+          "queryParams": [
+            {
+              "id": 0.17924708804438771,
+              "key": "",
+              "value": "",
+              "isEnabled": true
+            }
+          ],
+          "contentType": "application/json"
+        },
+        "auth": {
+          "currentAuthType": "INHERIT",
+          "authConfigStore": {}
+        },
+        "scripts": {
+          "postResponse": "",
+          "preRequest": ""
+        }
+      }
+    },
+    {
+      "type": "api",
+      "collectionId": "vbiYcVYnnuvBKStOF09b",
+      "id": "PQSh2ZhK2f4tM4gGyRv6",
+      "name": "sign-up",
+      "deleted": false,
+      "data": {
+        "scripts": {
+          "postResponse": "",
+          "preRequest": ""
+        },
+        "auth": {
+          "currentAuthType": "INHERIT",
+          "authConfigStore": {}
+        },
+        "request": {
+          "body": "{\n  \"username\": \"john123\",\n  \"password\":\"secret123\",\n  \"email\": \"john@example.com\",\n  \"fullName\": \"John Smith\",\n  \"phoneNumber\": \"0123456789\"\n}\n",
+          "headers": [
+            {
+              "isEnabled": true,
+              "value": "application/json",
+              "id": 0.06048834351064003,
+              "key": "Content-Type"
+            }
+          ],
+          "bodyContainer": {
+            "form": [],
+            "text": "{\n  \"username\": \"john123\",\n  \"password\":\"secret123\",\n  \"email\": \"john@example.com\",\n  \"fullName\": \"John Smith\",\n  \"phoneNumber\": \"0123456789\"\n}\n"
+          },
+          "contentType": "application/json",
+          "url": "http://localhost:8080/identity/users/sign-up",
+          "method": "POST",
+          "queryParams": [
+            {
+              "id": 0.8412225421059674,
+              "key": "",
+              "value": "",
+              "isEnabled": true
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
