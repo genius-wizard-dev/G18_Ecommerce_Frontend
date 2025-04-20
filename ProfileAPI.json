@@ -1,0 +1,249 @@
+{
+  "schema_version": "1.0.0",
+  "records": [
+    {
+      "collectionId": "y92LpmGU0B6RgQkvw9xM",
+      "description": "",
+      "data": {
+        "variables": {},
+        "auth": {
+          "currentAuthType": "INHERIT",
+          "authConfigStore": {}
+        }
+      },
+      "name": "ProfileService",
+      "type": "collection",
+      "deleted": false,
+      "id": "QsNKOOJaJXl7iDBlSt2U"
+    },
+    {
+      "name": "AddressAPI",
+      "id": "SyMET5oDNUEfZv50cfOD",
+      "collectionId": "QsNKOOJaJXl7iDBlSt2U",
+      "description": "",
+      "deleted": false,
+      "data": {
+        "variables": {},
+        "auth": {
+          "currentAuthType": "INHERIT",
+          "authConfigStore": {}
+        }
+      },
+      "type": "collection"
+    },
+    {
+      "deleted": false,
+      "type": "api",
+      "id": "javypZkRFEdYIjTaL0NB",
+      "name": "add address",
+      "collectionId": "SyMET5oDNUEfZv50cfOD",
+      "data": {
+        "scripts": {
+          "preRequest": "",
+          "postResponse": ""
+        },
+        "request": {
+          "method": "POST",
+          "queryParams": [],
+          "body": "{\n    \"street\":\"QL13 Tân Định\",\n    \"city\": \"Bình Dương\",\n    \"detail\":\"Số nhà 334/13A Gần khu đô thị TG Khu phố 4\",\n    \"type\": \"HOME\"\n}",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "isEnabled": true,
+              "id": 0.48484840408610075,
+              "value": "application/json"
+            }
+          ],
+          "contentType": "application/json",
+          "bodyContainer": {
+            "text": "{\n    \"street\":\"QL13 Tân Định\",\n    \"city\": \"Bình Dương\",\n    \"detail\":\"Số nhà 334/13A Gần khu đô thị TG Khu phố 4\",\n    \"type\": \"HOME\"\n}",
+            "form": []
+          },
+          "url": "http://localhost:8088/profile/address/create/cd89a227-9120-4406-b74f-98322681c82b"
+        },
+        "auth": {
+          "currentAuthType": "BEARER_TOKEN",
+          "authConfigStore": {
+            "BEARER_TOKEN": {
+              "bearer": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJHMTggRWNvbW1lcmNlIiwic3ViIjoiam9objEyMyIsImV4cCI6MTc0NDM5NTM5OSwiaWF0IjoxNzQ0MzkxNzk5LCJqdGkiOiI2YjEyNDllOC03ZWE2LTQwOGQtODE2MS1lOTlkNmY1ZWNhM2MiLCJzY29wZSI6IlJPTEVfVVNFUiAwMDAwIn0.VQUXB0QusvxZfvHjRoVQGY8xb8qq7QOWHC0dybyaORG8i75mPswj2aGDabT-tIG51Cpy3RJG3Yg96VHDkpElRQ"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "get all address (by profileId)",
+      "collectionId": "SyMET5oDNUEfZv50cfOD",
+      "deleted": false,
+      "id": "ip0RXGTgscoAMk65VAVp",
+      "type": "api",
+      "data": {
+        "scripts": {
+          "postResponse": "",
+          "preRequest": ""
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://localhost:8088/profile/address/get-all/cd89a227-9120-4406-b74f-98322681c82b",
+          "contentType": "text/plain",
+          "queryParams": [],
+          "body": null,
+          "headers": []
+        },
+        "auth": {
+          "authConfigStore": {
+            "BEARER_TOKEN": {
+              "bearer": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJHMTggRWNvbW1lcmNlIiwic3ViIjoiam9objEyMyIsImV4cCI6MTc0MDkyOTQ2MywiaWF0IjoxNzQwOTI1ODYzLCJqdGkiOiIyOTM1YWU4Zi1kNmExLTQ1N2UtYTRlNi02Mzc5ZjgyYzg5NjYiLCJzY29wZSI6IlJPTEVfVVNFUiAwMDAwIn0.looQuQbeVWq_QFG5zkVvno9oxzKGsgDF5mkT5EE-U8jvzmgP7ljRREaYnlPLV6IGyAly0SKR1AMiWciNeCLq3Q"
+            }
+          },
+          "currentAuthType": "BEARER_TOKEN"
+        }
+      }
+    },
+    {
+      "data": {
+        "auth": {
+          "authConfigStore": {
+            "BEARER_TOKEN": {
+              "bearer": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJHMTggRWNvbW1lcmNlIiwic3ViIjoiam9objEyMyIsImV4cCI6MTc0MDkyOTQ2MywiaWF0IjoxNzQwOTI1ODYzLCJqdGkiOiIyOTM1YWU4Zi1kNmExLTQ1N2UtYTRlNi02Mzc5ZjgyYzg5NjYiLCJzY29wZSI6IlJPTEVfVVNFUiAwMDAwIn0.looQuQbeVWq_QFG5zkVvno9oxzKGsgDF5mkT5EE-U8jvzmgP7ljRREaYnlPLV6IGyAly0SKR1AMiWciNeCLq3Q"
+            }
+          },
+          "currentAuthType": "BEARER_TOKEN"
+        },
+        "request": {
+          "headers": [],
+          "body": null,
+          "contentType": "text/plain",
+          "url": "http://localhost:8088/profile/address/set-default/cd89a227-9120-4406-b74f-98322681c82b/fbe90bea-56a9-43c8-8413-b31d220d949b",
+          "method": "PUT",
+          "queryParams": []
+        },
+        "scripts": {
+          "postResponse": "",
+          "preRequest": ""
+        }
+      },
+      "type": "api",
+      "name": "set default address ( by profileId, addressId)",
+      "id": "Ilv75NLhOHCdHukEsauF",
+      "deleted": false,
+      "collectionId": "SyMET5oDNUEfZv50cfOD"
+    },
+    {
+      "type": "api",
+      "name": "Update type address (by addressId, type = [\"HOME\", \"WORK\", \"OTHER\"])",
+      "data": {
+        "request": {
+          "url": "http://localhost:8088/profile/address/update-type/cc552979-6347-4444-9e57-89e3b594747a?type=WORK",
+          "body": null,
+          "method": "PUT",
+          "headers": [],
+          "queryParams": [
+            {
+              "key": "type",
+              "id": 0.6049419604142126,
+              "isEnabled": true,
+              "value": "WORK"
+            }
+          ],
+          "contentType": "text/plain"
+        },
+        "auth": {
+          "currentAuthType": "BEARER_TOKEN",
+          "authConfigStore": {
+            "BEARER_TOKEN": {
+              "bearer": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJHMTggRWNvbW1lcmNlIiwic3ViIjoiam9objEyMyIsImV4cCI6MTc0MDkyOTQ2MywiaWF0IjoxNzQwOTI1ODYzLCJqdGkiOiIyOTM1YWU4Zi1kNmExLTQ1N2UtYTRlNi02Mzc5ZjgyYzg5NjYiLCJzY29wZSI6IlJPTEVfVVNFUiAwMDAwIn0.looQuQbeVWq_QFG5zkVvno9oxzKGsgDF5mkT5EE-U8jvzmgP7ljRREaYnlPLV6IGyAly0SKR1AMiWciNeCLq3Q"
+            }
+          }
+        },
+        "scripts": {
+          "preRequest": "",
+          "postResponse": ""
+        }
+      },
+      "id": "9n7VGllBEnik2JhiIa9y",
+      "collectionId": "SyMET5oDNUEfZv50cfOD",
+      "deleted": false
+    },
+    {
+      "deleted": false,
+      "type": "collection",
+      "name": "ProfileAPI",
+      "id": "KutUmVklH1mY2gahtPZs",
+      "data": {
+        "variables": {},
+        "auth": {
+          "currentAuthType": "INHERIT",
+          "authConfigStore": {}
+        }
+      },
+      "description": "",
+      "collectionId": "QsNKOOJaJXl7iDBlSt2U"
+    },
+    {
+      "type": "api",
+      "deleted": false,
+      "name": "register shop ( by profileId)",
+      "id": "VCeE9qIzXLY887wxZazz",
+      "collectionId": "KutUmVklH1mY2gahtPZs",
+      "data": {
+        "scripts": {
+          "postResponse": "",
+          "preRequest": ""
+        },
+        "auth": {
+          "currentAuthType": "BEARER_TOKEN",
+          "authConfigStore": {
+            "BEARER_TOKEN": {
+              "bearer": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJHMTggRWNvbW1lcmNlIiwic3ViIjoiam9objEyMyIsImV4cCI6MTc0MDkyOTQ2MywiaWF0IjoxNzQwOTI1ODYzLCJqdGkiOiIyOTM1YWU4Zi1kNmExLTQ1N2UtYTRlNi02Mzc5ZjgyYzg5NjYiLCJzY29wZSI6IlJPTEVfVVNFUiAwMDAwIn0.looQuQbeVWq_QFG5zkVvno9oxzKGsgDF5mkT5EE-U8jvzmgP7ljRREaYnlPLV6IGyAly0SKR1AMiWciNeCLq3Q"
+            }
+          }
+        },
+        "request": {
+          "method": "PUT",
+          "queryParams": [],
+          "headers": [],
+          "url": "http://localhost:8088/profile/register-shop/fb3f97f5-3673-4753-9bf6-ab5adc79c118",
+          "contentType": "text/plain",
+          "body": null
+        }
+      }
+    },
+    {
+      "type": "api",
+      "deleted": false,
+      "collectionId": "KutUmVklH1mY2gahtPZs",
+      "name": "update profile ( bearer token, userId)",
+      "id": "wFX17pTHS6jfaO0Y0Zfu",
+      "data": {
+        "request": {
+          "bodyContainer": {
+            "text": "{\n  \"avatar\": \"https://picsum/20x50.com\",\n  \"displayName\": \"JohnTiny\",\n  \"birthDay\": \"2002-02-02\"\n}\n",
+            "form": []
+          },
+          "headers": [
+            {
+              "isEnabled": true,
+              "key": "Content-Type",
+              "id": 0.16461423189194346,
+              "value": "application/json"
+            }
+          ],
+          "url": "http://localhost:8088/profile/3cc53345-5752-4c89-9cf9-1ecfe725d13c",
+          "body": "{\n  \"avatar\": \"https://picsum/20x50.com\",\n  \"displayName\": \"JohnTiny\",\n  \"birthDay\": \"2002-02-02\"\n}\n",
+          "method": "PUT",
+          "contentType": "application/json",
+          "queryParams": []
+        },
+        "scripts": {
+          "preRequest": "",
+          "postResponse": ""
+        },
+        "auth": {
+          "currentAuthType": "INHERIT",
+          "authConfigStore": {}
+        }
+      }
+    }
+  ]
+}
