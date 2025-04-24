@@ -225,29 +225,6 @@ export default function Footer() {
             </ul>
             <div className="mt-6">
               <h4 className="font-semibold mb-2">Phương thức thanh toán</h4>
-              <div className="flex gap-2 flex-wrap">
-                <img
-                  src="/images/payment/visa.png"
-                  alt="Visa"
-                  className="h-8"
-                />
-                <img
-                  src="/images/payment/mastercard.png"
-                  alt="MasterCard"
-                  className="h-8"
-                />
-                <img src="/images/payment/jcb.png" alt="JCB" className="h-8" />
-                <img
-                  src="/images/payment/momo.png"
-                  alt="MoMo"
-                  className="h-8"
-                />
-                <img
-                  src="/images/payment/zalopay.png"
-                  alt="ZaloPay"
-                  className="h-8"
-                />
-              </div>
             </div>
           </div>
         </div>

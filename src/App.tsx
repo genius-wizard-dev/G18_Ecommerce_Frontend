@@ -2,6 +2,7 @@ import { Suspense, useEffect, useState } from "react";
 import { Provider } from "react-redux";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
+import AuthLayout from "./components/layout/AuthLayout";
 import MainLayout from "./components/layout/MainLayout";
 import { getAccessToken } from "./lib/storage";
 import CartPage from "./pages/cart";
@@ -37,14 +38,16 @@ function App() {
       <BrowserRouter>
         <Suspense fallback={<LoadingComponent />}>
           <Routes>
-            <Route
-              path="login"
-              element={isLogin ? <Navigate to="/" replace /> : <Login />}
-            />
-            <Route
-              path="register"
-              element={isLogin ? <Navigate to="/" replace /> : <Register />}
-            />
+            <Route element={<AuthLayout />}>
+              <Route
+                path="login"
+                element={isLogin ? <Navigate to="/" replace /> : <Login />}
+              />
+              <Route
+                path="register"
+                element={isLogin ? <Navigate to="/" replace /> : <Register />}
+              />
+            </Route>
 
             {/* Route với MainLayout bao quanh các route con */}
             <Route path="/" element={<MainLayout />}>
