@@ -16,7 +16,7 @@ export default function Header() {
   return (
     <header className="border-b sticky top-0 bg-white z-50">
       {/* Top bar */}
-      <div className="bg-primary text-white text-sm py-2">
+      <div className="bg-black text-white text-sm py-2">
         <div className="container mx-auto px-4 flex justify-between">
           <div className="flex items-center gap-4">
             <a
