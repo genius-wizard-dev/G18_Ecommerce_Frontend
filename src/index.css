@@ -2,27 +2,4 @@
 @import "tw-animate-css";
 
 
-@layer utilities {
-  .animate-fadeIn {
-    animation: fadeIn 0.5s ease-in-out forwards;
-  }
 
-  .animate-delay-100 {
-    animation-delay: 0.1s;
-  }
-
-  .animate-delay-200 {
-    animation-delay: 0.2s;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-}
