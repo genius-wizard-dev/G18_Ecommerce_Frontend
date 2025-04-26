@@ -1,88 +1,53 @@
-import { AxiosRequestConfig, AxiosResponse } from "axios";
-import instance from "./axios";
+import { ApiService } from "@/types/api.service";
+import ApiClient from "./axios";
 
-export class ApiService {
-  private getHeaders(token?: string): Record<string, string> {
-    const headers: Record<string, string> = {};
+// Get the preconfigured axios instance
+const axiosInstance = ApiClient.getInstance();
 
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
-    return headers;
-  }
-
-  async request<T>(
+class ApiServiceImpl implements ApiService {
+  private async request<T>(
     method: string,
     uri: string,
     data?: any,
-    token?: string,
-    params?: any
+    headers?: any
   ): Promise<T> {
     try {
-      const config: AxiosRequestConfig = {
+      console.log(`📤 Making ${method} request to ${uri}`, { data });
+
+      const response = await axiosInstance.request<T>({
         method,
         url: uri,
-        headers: this.getHeaders(token),
-        params,
-      };
+        data,
+        headers,
+      });
 
-      if (
-        data &&
-        (method === "POST" || method === "PUT" || method === "PATCH")
-      ) {
-        config.data = data;
-      }
-
-      if (data && method === "DELETE") {
-        config.data = data;
-      }
-
-      const response: AxiosResponse<T> = await instance(config);
       return response.data;
     } catch (error) {
+      console.error(`❌ Error in ${method} request to ${uri}:`, error);
       throw error;
     }
   }
 
-  async get<T>(uri: string, token?: string, params?: any): Promise<T> {
-    return this.request<T>("GET", uri, undefined, token, params);
+  async get<T>(uri: string): Promise<T> {
+    return this.request<T>("GET", uri);
   }
 
-  async post<T>(uri: string, data?: any, token?: string): Promise<T> {
-    return this.request<T>("POST", uri, data, token);
+  async post<T>(uri: string, data?: any): Promise<T> {
+    return this.request<T>("POST", uri, data);
   }
 
-  async put<T>(uri: string, data?: any, token?: string): Promise<T> {
-    return this.request<T>("PUT", uri, data, token);
+  async put<T>(uri: string, data?: any): Promise<T> {
+    return this.request<T>("PUT", uri, data);
   }
 
-  async delete<T>(uri: string, data?: any, token?: string): Promise<T> {
-    return this.request<T>("DELETE", uri, data, token);
+  async delete<T>(uri: string): Promise<T> {
+    return this.request<T>("DELETE", uri);
   }
-
-  async patch<T>(uri: string, data?: any, token?: string): Promise<T> {
-    return this.request<T>("PATCH", uri, data, token);
+  async patch<T>(uri: string): Promise<T> {
+    return this.request<T>("DELETE", uri);
   }
 }
 
-// Create and export a singleton instance
-const api = new ApiService();
-export default api;
+const api = new ApiServiceImpl();
 
-/**
- * Usage examples:
- *
- * For authentication routes (login/register), do NOT pass token:
- * export const loginUser = (credentials: LoginCredentials) =>
- *   api.post<LoginResponse>('/auth/login', credentials);
- *
- * export const registerUser = (userData: RegisterData) =>
- *   api.post<RegisterResponse>('/auth/register', userData);
- *
- * For protected routes, pass token:
- * export const getUserProfile = (token: string) =>
- *   api.get<UserProfile>('/user/profile', token);
- *
- * export const updateUserProfile = (data: ProfileData, token: string) =>
- *   api.put<UserProfile>('/user/profile', data, token);
- */
+export default api;
