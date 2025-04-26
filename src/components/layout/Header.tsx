@@ -3,15 +3,7 @@ import { Link } from "react-router-dom";
 import { CartIcon } from "../ui/cart-icon";
 
 export default function Header() {
-  const categories = [
-    { name: "Điện thoại", path: "/category/dien-thoai" },
-    { name: "Laptop", path: "/category/laptop" },
-    { name: "Tablet", path: "/category/tablet" },
-    { name: "Phụ kiện", path: "/category/phu-kien" },
-    { name: "Smartwatch", path: "/category/smartwatch" },
-    { name: "Sản phẩm", path: "/products" },
-    { name: "Khuyến mãi", path: "/promotions" },
-  ];
+  // const categories = [{ name: "Sản phẩm", path: "/products" }];
 
   return (
     <header className="border-b sticky top-0 bg-white z-50">
@@ -87,7 +79,7 @@ export default function Header() {
       {/* Categories navbar */}
       <nav className="bg-gray-100 py-3">
         <div className="container mx-auto px-4">
-          <ul className="flex items-center justify-center space-x-8">
+          {/* <ul className="flex items-center justify-center space-x-8">
             {categories.map((category, index) => (
               <li key={index}>
                 <Link
@@ -98,7 +90,7 @@ export default function Header() {
                 </Link>
               </li>
             ))}
-          </ul>
+          </ul> */}
         </div>
       </nav>
     </header>

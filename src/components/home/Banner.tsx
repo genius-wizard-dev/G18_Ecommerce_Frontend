@@ -1,6 +1,15 @@
+import api from "@/lib/axios/api.service";
+import { ENDPOINTS } from "@/lib/axios/endpoint";
 import { Button } from "../ui/button";
 
 const Banner = () => {
+  const handleClick = async () => {
+    try {
+      await api.get<any>(
+        ENDPOINTS.PRODUCT.GET_BY_ID("680a6a26b3c8ae3592f095cc")
+      );
+    } catch (error) {}
+  };
   return (
     <section className="bg-white">
       <div className="container mx-auto px-4 py-5">
@@ -18,7 +27,10 @@ const Banner = () => {
                 Giao hàng nhanh chóng và chính sách đổi trả linh hoạt tại G18
                 Ecommerce.
               </p>
-              <Button className="bg-white text-red-500 hover:bg-gray-100 hover:text-red-600">
+              <Button
+                onClick={handleClick}
+                className="bg-white text-red-500 hover:bg-gray-100 hover:text-red-600"
+              >
                 Xem thêm
               </Button>
             </div>
