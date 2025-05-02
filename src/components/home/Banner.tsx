@@ -1,15 +1,6 @@
-import api from "@/lib/axios/api.service";
-import { ENDPOINTS } from "@/lib/axios/endpoint";
-import { Button } from "../ui/button";
+import { Link } from "react-router-dom";
 
 const Banner = () => {
-  const handleClick = async () => {
-    try {
-      await api.get<any>(
-        ENDPOINTS.PRODUCT.GET_BY_ID("680a6a26b3c8ae3592f095cc")
-      );
-    } catch (error) {}
-  };
   return (
     <section className="bg-white">
       <div className="container mx-auto px-4 py-5">
@@ -27,12 +18,12 @@ const Banner = () => {
                 Giao hàng nhanh chóng và chính sách đổi trả linh hoạt tại G18
                 Ecommerce.
               </p>
-              <Button
-                onClick={handleClick}
-                className="bg-white text-red-500 hover:bg-gray-100 hover:text-red-600"
-              >
+                <Link
+                to="/products"
+                className="inline-block bg-white text-red-500 font-medium py-2 px-6 rounded-lg hover:bg-gray-100 hover:text-red-600 transition-colors shadow-md"
+                >
                 Xem thêm
-              </Button>
+                </Link>
             </div>
             <div className="hidden md:block md:w-1/2">
               <img

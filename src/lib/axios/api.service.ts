@@ -43,8 +43,8 @@ class ApiServiceImpl implements ApiService {
   async delete<T>(uri: string): Promise<T> {
     return this.request<T>("DELETE", uri);
   }
-  async patch<T>(uri: string): Promise<T> {
-    return this.request<T>("DELETE", uri);
+  async patch<T>(uri: string, data?: any): Promise<T> {
+    return this.request<T>("PATCH", uri, data);
   }
 }
 

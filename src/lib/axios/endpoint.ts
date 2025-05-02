@@ -13,6 +13,8 @@ export const ENDPOINTS = {
   },
   PROFILE: {
     UPDATE: (userId: string) => `${BASE_ENDPOINT}/profile/${userId}`,
+    INFO: (userId: string) => `${BASE_ENDPOINT}/profile/my-
+    profile/${userId}`,
     REGISTER_SHOP: (profileId: string) =>
       `${BASE_ENDPOINT}/profile/register-shop/${profileId}`,
   },

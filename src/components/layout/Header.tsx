@@ -1,8 +1,44 @@
+import { removeAccessToken } from "@/lib/storage";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { clearAccount } from "@/redux/slices/account";
+import { logout } from "@/redux/thunks/account";
+import { useEffect, useRef, useState } from "react";
 import { BsEnvelope, BsPerson, BsSearch, BsTelephone } from "react-icons/bs";
 import { Link } from "react-router-dom";
+import { Button } from "../ui/button";
 import { CartIcon } from "../ui/cart-icon";
 
 export default function Header() {
+  const { isAuthenticated } = useAppSelector((state) => state.account);
+  const dispatch = useAppDispatch();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(event.target as Node)
+      ) {
+        setShowUserMenu(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    dispatch(logout()).then(() => {
+      dispatch(clearAccount());
+      setShowUserMenu(false);
+      removeAccessToken();
+    });
+  };
+
   // const categories = [{ name: "Sản phẩm", path: "/products" }];
 
   return (
@@ -19,7 +55,7 @@ export default function Header() {
               Hotline: 1800 1234
             </a>
             <a
-              href="mailto:support@shoptech.vn"
+              href="mailto:support@g18ecommerce.vn"
               className="flex items-center gap-1 hover:underline"
             >
               <BsEnvelope className="h-4 w-4" />
@@ -62,12 +98,45 @@ export default function Header() {
 
           {/* Action buttons */}
           <div className="flex items-center gap-5">
-            <Link
-              to="/profile"
-              className="flex flex-col items-center text-sm font-medium text-gray-700 hover:text-primary transition-colors"
-            >
-              <BsPerson className="h-5 w-5" />
-            </Link>
+            {isAuthenticated ? (
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex flex-col items-center text-sm font-medium text-gray-700 hover:text-primary transition-colors"
+                >
+                  <BsPerson className="h-5 w-5" />
+                </button>
+
+                {showUserMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border">
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setShowUserMenu(false)}
+                    >
+                      Thông tin cá nhân
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Đăng xuất
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link to="/login">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-1"
+                >
+                  <BsPerson className="h-4 w-4" />
+                  Đăng nhập
+                </Button>
+              </Link>
+            )}
 
             <div className="flex flex-col items-center text-sm font-medium text-gray-700">
               <CartIcon />
