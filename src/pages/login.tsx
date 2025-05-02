@@ -17,14 +17,18 @@ import { ENDPOINTS } from "@/lib/axios/endpoint";
 import { LoginPayload, LoginPayloadSchema, LoginResponse } from "@/schema/auth";
 
 import { setAccessToken } from "@/lib/storage";
+import { useAppDispatch } from "@/redux/hooks";
+import { getInfo } from "@/redux/thunks/account";
 import { FaRegCircleUser } from "react-icons/fa6";
 import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 import { MdOutlineLock } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const form = useForm<LoginPayload>({
     resolver: zodResolver(LoginPayloadSchema),
@@ -82,8 +86,21 @@ const Login = () => {
       if ("result" in response) {
         const { token } = response.result;
         setAccessToken(token);
-        toast.success("Đăng nhập thành công");
-        navigate("/");
+
+        try {
+          // Dispatch the getInfo action to fetch account information
+          await dispatch(getInfo()).unwrap();
+
+          // Only navigate after successful account info fetch
+          toast.success("Đăng nhập thành công");
+          navigate("/");
+        } catch (infoError) {
+          // Handle the case where fetching account info fails
+          toast.error(
+            "Đăng nhập thành công, nhưng không thể tải thông tin tài khoản"
+          );
+          console.error("Error fetching account info:", infoError);
+        }
       }
     } catch (error: any) {
       let errorMessage = "Đăng nhập thất bại. Vui lòng thử lại sau";

@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { getProfile, updateProfile } from "@/redux/thunks/profile";
+import { Profile } from "@/types/profile";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "../components/ui/button";
 import {
@@ -12,28 +15,6 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Separator } from "../components/ui/separator";
 
-// Định nghĩa kiểu dữ liệu cho thông tin user
-interface UserProfile {
-  id: string;
-  fullName: string;
-  email: string;
-  phoneNumber: string;
-  birthday: string;
-  address: string;
-  avatar: string;
-}
-
-// Mock data user profile
-const mockUserProfile: UserProfile = {
-  id: "1",
-  fullName: "Nguyễn Văn A",
-  email: "nguyenvana@example.com",
-  phoneNumber: "0123456789",
-  birthday: "1990-01-01",
-  address: "Số 123, Đường ABC, Quận XYZ, TP. Hồ Chí Minh",
-  avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-};
-
 // Danh sách đơn hàng gần đây (mock data)
 const recentOrders = [
   { id: "ORD-001", date: "2023-11-15", total: 1250000, status: "Đã giao" },
@@ -42,37 +23,87 @@ const recentOrders = [
   { id: "ORD-004", date: "2023-09-30", total: 450000, status: "Đã hủy" },
 ];
 
-const Profile = () => {
-  // State cho thông tin người dùng
-  const [userProfile, setUserProfile] = useState<UserProfile>(mockUserProfile);
+const ProfilePage = () => {
+  // Get account and profile from Redux
+  const dispatch = useAppDispatch();
+  const { account, isAuthenticated } = useAppSelector((state) => state.account);
+  const { profile, isLoading: profileLoading } = useAppSelector(
+    (state) => state.profile
+  );
+
   const [isEditing, setIsEditing] = useState(false);
-  const [editedProfile, setEditedProfile] =
-    useState<UserProfile>(mockUserProfile);
-  const [isLoading, setIsLoading] = useState(false);
+  const [editedProfile, setEditedProfile] = useState<Profile | null>(null);
+  const [isUpdateLoading, setIsUpdateLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"info" | "orders" | "security">(
     "info"
   );
 
+  // Fetch profile data when component mounts or when account changes
+  useEffect(() => {
+    if (isAuthenticated && account?.result?.id) {
+      dispatch(getProfile(account.result.id));
+    }
+  }, [dispatch, isAuthenticated, account]);
+
+  // Update editedProfile when profile changes
+  useEffect(() => {
+    if (profile) {
+      setEditedProfile(profile);
+    }
+  }, [profile]);
+
+  // If not authenticated or profile is loading, show appropriate message
+  if (!isAuthenticated) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <h1 className="text-2xl font-bold mb-4">
+          Please login to view your profile
+        </h1>
+        {/* Add a login button or redirect logic here */}
+      </div>
+    );
+  }
+
+  if (profileLoading && !profile) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <h1 className="text-2xl font-bold mb-4">Loading profile...</h1>
+        {/* Add a loading spinner here */}
+      </div>
+    );
+  }
+
   // Xử lý thay đổi input khi chỉnh sửa thông tin
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setEditedProfile((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    if (editedProfile) {
+      setEditedProfile((prev) => ({
+        ...prev!,
+        [name]: value,
+      }));
+    }
   };
 
   // Xử lý cập nhật thông tin người dùng
-  const handleUpdateProfile = () => {
-    setIsLoading(true);
+  const handleUpdateProfile = async () => {
+    if (!editedProfile || !account?.result?.id) return;
 
-    // Giả lập API call
-    setTimeout(() => {
-      setUserProfile(editedProfile);
+    setIsUpdateLoading(true);
+    try {
+      await dispatch(
+        updateProfile({
+          userId: account.result.id,
+          profileData: editedProfile,
+        })
+      ).unwrap();
+
       setIsEditing(false);
-      setIsLoading(false);
       toast.success("Cập nhật thông tin thành công!");
-    }, 1000);
+    } catch (error) {
+      toast.error("Không thể cập nhật thông tin: " + error);
+    } finally {
+      setIsUpdateLoading(false);
+    }
   };
 
   // Format định dạng tiền tệ
@@ -84,10 +115,27 @@ const Profile = () => {
   };
 
   // Định dạng ngày
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "N/A";
     const date = new Date(dateString);
     return new Intl.DateTimeFormat("vi-VN").format(date);
   };
+
+  // Get initial letter for the avatar
+  const getInitial = () => {
+    if (profile?.fullName && profile.fullName.length > 0) {
+      return profile.fullName.charAt(0).toUpperCase();
+    } else if (
+      account?.result?.username &&
+      account.result.username.length > 0
+    ) {
+      return account.result.username.charAt(0).toUpperCase();
+    }
+    return "U"; // Default initial if no name is available
+  };
+
+  // Check if user has avatar
+  const hasAvatar = profile?.avatar && profile.avatar.trim() !== "";
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -99,11 +147,17 @@ const Profile = () => {
           <Card className="mb-6">
             <CardContent className="p-6 flex flex-col items-center">
               <div className="relative mb-4">
-                <img
-                  src={userProfile.avatar}
-                  alt="Avatar"
-                  className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-md"
-                />
+                {hasAvatar ? (
+                  <img
+                    src={profile.avatar || undefined}
+                    alt="Avatar"
+                    className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-md"
+                  />
+                ) : (
+                  <div className="w-32 h-32 rounded-full bg-orange-500 flex items-center justify-center text-white text-4xl font-bold border-4 border-white shadow-md">
+                    {getInitial()}
+                  </div>
+                )}
                 {!isEditing && (
                   <button className="absolute bottom-0 right-0 bg-primary text-white p-1 rounded-full w-8 h-8 flex items-center justify-center">
                     <svg
@@ -128,8 +182,10 @@ const Profile = () => {
                   </button>
                 )}
               </div>
-              <h2 className="text-xl font-bold">{userProfile.fullName}</h2>
-              <p className="text-gray-500">{userProfile.email}</p>
+              <h2 className="text-xl font-bold">
+                {profile?.fullName || account?.result?.username}
+              </h2>
+              <p className="text-gray-500">{profile?.email}</p>
             </CardContent>
           </Card>
 
@@ -226,13 +282,16 @@ const Profile = () => {
                       variant="outline"
                       onClick={() => {
                         setIsEditing(false);
-                        setEditedProfile(userProfile);
+                        setEditedProfile(profile);
                       }}
                     >
                       Hủy
                     </Button>
-                    <Button onClick={handleUpdateProfile} disabled={isLoading}>
-                      {isLoading ? "Đang lưu..." : "Lưu thay đổi"}
+                    <Button
+                      onClick={handleUpdateProfile}
+                      disabled={isUpdateLoading}
+                    >
+                      {isUpdateLoading ? "Đang lưu..." : "Lưu thay đổi"}
                     </Button>
                   </div>
                 )}
@@ -245,12 +304,12 @@ const Profile = () => {
                       <Input
                         id="fullName"
                         name="fullName"
-                        value={editedProfile.fullName}
+                        value={editedProfile?.fullName || ""}
                         onChange={handleInputChange}
                       />
                     ) : (
                       <div className="p-2 border rounded-md bg-gray-50">
-                        {userProfile.fullName}
+                        {profile?.fullName || "Chưa cập nhật"}
                       </div>
                     )}
                   </div>
@@ -262,12 +321,12 @@ const Profile = () => {
                         id="email"
                         name="email"
                         type="email"
-                        value={editedProfile.email}
+                        value={editedProfile?.email || ""}
                         onChange={handleInputChange}
                       />
                     ) : (
                       <div className="p-2 border rounded-md bg-gray-50">
-                        {userProfile.email}
+                        {profile?.email || "Chưa cập nhật"}
                       </div>
                     )}
                   </div>
@@ -278,12 +337,12 @@ const Profile = () => {
                       <Input
                         id="phoneNumber"
                         name="phoneNumber"
-                        value={editedProfile.phoneNumber}
+                        value={editedProfile?.phoneNumber || ""}
                         onChange={handleInputChange}
                       />
                     ) : (
                       <div className="p-2 border rounded-md bg-gray-50">
-                        {userProfile.phoneNumber}
+                        {profile?.phoneNumber || "Chưa cập nhật"}
                       </div>
                     )}
                   </div>
@@ -295,12 +354,14 @@ const Profile = () => {
                         id="birthday"
                         name="birthday"
                         type="date"
-                        value={editedProfile.birthday}
+                        value={editedProfile?.birthday || ""}
                         onChange={handleInputChange}
                       />
                     ) : (
                       <div className="p-2 border rounded-md bg-gray-50">
-                        {formatDate(userProfile.birthday)}
+                        {profile?.birthday
+                          ? formatDate(profile.birthday)
+                          : "Chưa cập nhật"}
                       </div>
                     )}
                   </div>
@@ -311,12 +372,12 @@ const Profile = () => {
                       <Input
                         id="address"
                         name="address"
-                        value={editedProfile.address}
+                        value={editedProfile?.address || ""}
                         onChange={handleInputChange}
                       />
                     ) : (
                       <div className="p-2 border rounded-md bg-gray-50">
-                        {userProfile.address}
+                        {profile?.address || "Chưa cập nhật"}
                       </div>
                     )}
                   </div>
@@ -325,6 +386,7 @@ const Profile = () => {
             </Card>
           )}
 
+          {/* Rest of the components remain the same */}
           {activeTab === "orders" && (
             <Card>
               <CardHeader>
@@ -469,4 +531,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default ProfilePage;

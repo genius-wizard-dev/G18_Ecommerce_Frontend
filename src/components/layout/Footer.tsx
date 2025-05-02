@@ -184,9 +184,7 @@ export default function Footer() {
                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                   />
                 </svg>
-                <span className="text-gray-400">
-                  123 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh
-                </span>
+                <span className="text-gray-400">Gò Vấp</span>
               </li>
               <li className="flex items-center gap-3">
                 <svg
@@ -220,7 +218,7 @@ export default function Footer() {
                     d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                   />
                 </svg>
-                <span className="text-gray-400">support@shoptech.vn</span>
+                <span className="text-gray-400">support@g18ecommerce.vn</span>
               </li>
             </ul>
             <div className="mt-6">
