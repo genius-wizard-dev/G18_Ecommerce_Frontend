@@ -18,7 +18,7 @@ const RoleSchema = z.object({
 
 // My Info Schema
 const AccountSchema = z.object({
-  userId: UUIDSchema,
+  id: UUIDSchema,
   username: z.string(),
   email: z.string().email(),
   fullName: z.string(),
