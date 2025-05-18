@@ -139,7 +139,7 @@ const ProfileInfo = ({
           </div>
 
           <div className="space-y-2 md:col-span-2">
-            <AddressForm address={address} />
+            <AddressForm address={address} profileId={profile?.id} />
           </div>
         </div>
       </CardContent>

@@ -74,3 +74,40 @@ export type SetDefaultAddressResponse = z.infer<
 export type UpdateAddressTypeResponse = z.infer<
   typeof UpdateAddressTypeResponseSchema
 >;
+
+export interface Province {
+  name: string;
+  code: number;
+  division_type: string;
+  codename: string;
+  phone_code: number;
+  districts?: District[];
+}
+
+export interface District {
+  name: string;
+  code: number;
+  division_type: string;
+  codename: string;
+  province_code: number;
+  wards?: Ward[];
+}
+
+export interface Ward {
+  name: string;
+  code: number;
+  division_type: string;
+  codename: string;
+  district_code: number;
+}
+
+export interface LocationState {
+  provinces: Province[];
+  districts: District[];
+  wards: Ward[];
+  selectedProvince: Province | null;
+  selectedDistrict: District | null;
+  selectedWard: Ward | null;
+  isLoading: boolean;
+  error: string | null;
+}

@@ -14,12 +14,18 @@ import {
 interface AddressState {
   address: Address[];
   isLoading: boolean;
+  isCreating: boolean;
+  isUpdating: boolean;
+  isDeleting: boolean;
   error: string | null;
 }
 
 const initialState: AddressState = {
   address: [],
   isLoading: false,
+  isCreating: false,
+  isUpdating: false,
+  isDeleting: false,
   error: null,
 };
 
@@ -63,31 +69,31 @@ const addressSlice = createSlice({
         state.error = (action.payload as string) || "Failed to fetch address";
       })
       .addCase(createAddress.pending, (state) => {
-        state.isLoading = true;
+        state.isCreating = true;
         state.error = null;
       })
       .addCase(
         createAddress.fulfilled,
         (state, action: PayloadAction<CreateAddressResponse>) => {
           if (action.payload.code === 1000) {
-            state.isLoading = false;
+            state.isCreating = false;
             state.address = [...state.address, action.payload.result];
           } else {
-            state.isLoading = false;
+            state.isCreating = false;
             state.address = [];
           }
         }
       )
       .addCase(createAddress.rejected, (state, action) => {
-        state.isLoading = false;
+        state.isCreating = false;
         state.error = (action.payload as string) || "Failed to create address";
       })
       .addCase(updateAddress.pending, (state) => {
-        state.isLoading = true;
+        state.isUpdating = true;
         state.error = null;
       })
       .addCase(updateAddress.fulfilled, (state, action) => {
-        state.isLoading = false;
+        state.isUpdating = false;
         if (action.payload.code === 1000) {
           state.address = state.address.map((address) =>
             address.id === action.payload.result.id
@@ -95,20 +101,20 @@ const addressSlice = createSlice({
               : address
           );
         } else {
-          state.isLoading = false;
+          state.isUpdating = false;
           state.address = [];
         }
       })
       .addCase(updateAddress.rejected, (state, action) => {
-        state.isLoading = false;
+        state.isUpdating = false;
         state.error = (action.payload as string) || "Failed to update address";
       })
       .addCase(deleteAddress.pending, (state) => {
-        state.isLoading = true;
+        state.isDeleting = true;
         state.error = null;
       })
       .addCase(deleteAddress.fulfilled, (state, action) => {
-        state.isLoading = false;
+        state.isDeleting = false;
         if (action.payload.code === 1000) {
           state.address = state.address.filter(
             (address) => address.id !== action.payload.addressId
@@ -118,7 +124,7 @@ const addressSlice = createSlice({
         }
       })
       .addCase(deleteAddress.rejected, (state, action) => {
-        state.isLoading = false;
+        state.isDeleting = false;
         state.error = (action.payload as string) || "Failed to delete address";
       });
   },
