@@ -1,5 +1,5 @@
 import locationService from "@/lib/axios/location.service";
-import { District, Province, Ward } from "@/types/address";
+import { District, Province, Ward } from "@/schema/address";
 import { indexedDBService } from "@/utils/index.db";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
