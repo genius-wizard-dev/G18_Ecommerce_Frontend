@@ -1,4 +1,4 @@
-import { District, LocationState, Province, Ward } from "@/types/address";
+import { District, LocationState, Province, Ward } from "@/schema/address";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { fetchDistricts, fetchProvinces, fetchWards } from "../thunks/location";
 

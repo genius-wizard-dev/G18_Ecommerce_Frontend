@@ -1,4 +1,4 @@
-import { District, Province, Ward } from "@/types/address";
+import { District, Province, Ward } from "@/schema/address";
 
 const DB_NAME = "G18_Ecommerce";
 const DB_VERSION = 1;

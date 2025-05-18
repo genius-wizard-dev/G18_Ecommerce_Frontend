@@ -1,4 +1,4 @@
-import { Profile, ProfileResponse } from "@/types/profile";
+import { Profile, ProfileResponse } from "@/schema/profile";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { getProfile, updateProfile } from "../thunks/profile";
 

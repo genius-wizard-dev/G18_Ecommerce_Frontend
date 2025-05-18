@@ -1,4 +1,4 @@
-import { Profile } from "@/types/profile";
+import { Profile } from "@/schema/profile";
 import { Card, CardContent } from "../ui/card";
 
 type TabType = "info" | "orders" | "security";

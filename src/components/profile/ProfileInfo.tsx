@@ -1,5 +1,5 @@
-import { Address } from "@/types/address";
-import { Profile } from "@/types/profile";
+import { Address } from "@/schema/address";
+import { Profile } from "@/schema/profile";
 import { Button } from "../ui/button";
 import {
   Card,
