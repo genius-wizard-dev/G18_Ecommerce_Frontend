@@ -1,6 +1,6 @@
-import { Profile } from "@/types/profile";
+import { Profile, ProfileResponse } from "@/types/profile";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import { getProfile } from "../thunks/profile";
+import { getProfile, updateProfile } from "../thunks/profile";
 
 interface ProfileState {
   profile: Profile | null;
@@ -39,15 +39,39 @@ const profileSlice = createSlice({
       })
       .addCase(
         getProfile.fulfilled,
-        (state, action: PayloadAction<Profile>) => {
+        (state, action: PayloadAction<ProfileResponse>) => {
+          if (action.payload.code === 1000) {
+            state.profile = action.payload.result;
+          } else {
+            state.profile = null;
+          }
           state.isLoading = false;
-          state.profile = action.payload;
         }
       )
       .addCase(getProfile.rejected, (state, action) => {
         state.isLoading = false;
         state.error =
           (action.payload as string) || "Failed to fetch profile information";
+      })
+      .addCase(updateProfile.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(
+        updateProfile.fulfilled,
+        (state, action: PayloadAction<ProfileResponse>) => {
+          if (action.payload.code === 1000) {
+            state.profile = action.payload.result;
+          } else {
+            state.profile = null;
+          }
+          state.isLoading = false;
+        }
+      )
+      .addCase(updateProfile.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error =
+          (action.payload as string) || "Failed to update profile information";
       });
   },
 });

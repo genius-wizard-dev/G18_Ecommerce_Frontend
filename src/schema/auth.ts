@@ -51,17 +51,6 @@ const LoginResponseSchema = z.union([
 ]);
 
 // Register response schemas
-const PermissionSchema = z.object({
-  name: z.string(),
-  description: z.string(),
-});
-
-const RoleSchema = z.object({
-  name: z.string(),
-  description: z.string(),
-  permissions: z.array(PermissionSchema),
-});
-
 const RegisterSuccessResponseSchema = z.object({
   code: z.number(),
   result: z.object({
@@ -71,7 +60,18 @@ const RegisterSuccessResponseSchema = z.object({
     createdAt: z.string(),
     updatedAt: z.string(),
     profileId: z.string().uuid(),
-    roles: z.array(RoleSchema),
+    roles: z.array(
+      z.object({
+        name: z.string(),
+        description: z.string(),
+        permissions: z.array(
+          z.object({
+            name: z.string(),
+            description: z.string(),
+          })
+        ),
+      })
+    ),
   }),
 });
 
@@ -101,18 +101,6 @@ const IntrospectResponseSchema = z.object({
   scope: z.string(),
 });
 
-const MyInfoResponseSchema = z.object({
-  userId: UUIDSchema,
-  username: z.string(),
-  email: z.string().email(),
-  fullName: z.string(),
-  phoneNumber: z.string(),
-});
-
-const DeleteAccountResponseSchema = z.object({
-  success: z.boolean(),
-});
-
 // Export types
 export type LoginPayload = z.infer<typeof LoginPayloadSchema>;
 export type LoginResponse = z.infer<typeof LoginResponseSchema>;
@@ -120,8 +108,6 @@ export type RegisterPayload = z.infer<typeof RegisterPayloadSchema>;
 export type RegisterResponse = z.infer<typeof RegisterResponseSchema>;
 export type IntrospectPayload = z.infer<typeof IntrospectPayloadSchema>;
 export type IntrospectResponse = z.infer<typeof IntrospectResponseSchema>;
-export type MyInfoResponse = z.infer<typeof MyInfoResponseSchema>;
-export type DeleteAccountResponse = z.infer<typeof DeleteAccountResponseSchema>;
 export type LoginSuccessResponse = z.infer<typeof LoginSuccessResponseSchema>;
 export type UnauthenticatedErrorResponse = z.infer<
   typeof UnauthenticatedErrorResponseSchema
@@ -133,22 +119,21 @@ export type RegisterSuccessResponse = z.infer<
   typeof RegisterSuccessResponseSchema
 >;
 export type RegisterErrorResponse = z.infer<typeof RegisterErrorResponseSchema>;
-export type Permission = z.infer<typeof PermissionSchema>;
-export type Role = z.infer<typeof RoleSchema>;
 
-// Export schemas
-export {
-  DeleteAccountResponseSchema,
-  IntrospectPayloadSchema,
-  IntrospectResponseSchema,
-  LoginResponseSchema,
-  LoginSuccessResponseSchema,
-  MyInfoResponseSchema,
-  PermissionSchema,
-  RegisterErrorResponseSchema,
-  RegisterResponseSchema,
-  RegisterSuccessResponseSchema,
-  RoleSchema,
-  UnauthenticatedErrorResponseSchema,
-  UserNotExistedErrorResponseSchema,
+export const AuthSchemas = {
+  INTROSPECT: {
+    payload: IntrospectPayloadSchema,
+    response: IntrospectResponseSchema,
+  },
+  LOGIN: {
+    response: LoginResponseSchema,
+    success: LoginSuccessResponseSchema,
+  },
+  REGISTER: {
+    error: RegisterErrorResponseSchema,
+    response: RegisterResponseSchema,
+    success: RegisterSuccessResponseSchema,
+  },
+  UNAUTHENTICATED_ERROR: { response: UnauthenticatedErrorResponseSchema },
+  USER_NOT_EXISTED_ERROR: { response: UserNotExistedErrorResponseSchema },
 };

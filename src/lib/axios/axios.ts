@@ -33,6 +33,11 @@ class ApiClient {
     if (!ApiClient.instance) {
       ApiClient.instance = axios.create({
         baseURL: import.meta.env.VITE_API_URL || "",
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
       });
 
       ApiClient.instance.interceptors.request.use(
