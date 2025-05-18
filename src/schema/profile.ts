@@ -2,6 +2,22 @@ import { z } from "zod";
 
 const UUIDSchema = z.string().uuid();
 
+export const ProfileSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  fullName: z.string(),
+  email: z.string().email(),
+  phoneNumber: z.string().nullable(),
+  birthday: z.string().nullable(),
+  avatar: z.string().nullable(),
+  isShop: z.boolean(),
+});
+
+export const ProfileResponseSchema = z.object({
+  code: z.number(),
+  result: ProfileSchema,
+});
+
 const UpdateProfilePayloadSchema = z.object({
   avatar: z.string().url("Invalid URL").optional(),
   displayName: z.string().min(1, "Display name is required").optional(),
@@ -28,10 +44,5 @@ export type UpdateProfilePayload = z.infer<typeof UpdateProfilePayloadSchema>;
 export type UpdateProfileResponse = z.infer<typeof UpdateProfileResponseSchema>;
 export type RegisterShopResponse = z.infer<typeof RegisterShopResponseSchema>;
 
-export const ProfileSchemas = {
-  UPDATE: {
-    payload: UpdateProfilePayloadSchema,
-    response: UpdateProfileResponseSchema,
-  },
-  REGISTER_SHOP: { response: RegisterShopResponseSchema },
-};
+export type Profile = z.infer<typeof ProfileSchema>;
+export type ProfileResponse = z.infer<typeof ProfileResponseSchema>;

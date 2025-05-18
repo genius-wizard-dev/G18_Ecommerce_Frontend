@@ -3,32 +3,45 @@ import { z } from "zod";
 const AddressTypeSchema = z.enum(["HOME", "WORK", "OTHER"]);
 const UUIDSchema = z.string().uuid();
 
-const CreateAddressPayloadSchema = z.object({
+const CreateAddressSchema = z.object({
   street: z.string().min(1, "Street is required"),
   city: z.string().min(1, "City is required"),
   detail: z.string().min(1, "Detail is required"),
+  ward: z.string().min(1, "Ward is required"),
+  district: z.string().min(1, "District is required"),
   type: AddressTypeSchema,
+  phoneShip: z.string().min(1, "PhoneShip is required"),
 });
 
 const AddressSchema = z.object({
-  addressId: UUIDSchema,
+  id: UUIDSchema,
+  profileId: UUIDSchema,
   street: z.string(),
+  ward: z.string(),
+  district: z.string(),
   city: z.string(),
   detail: z.string(),
   type: AddressTypeSchema,
   isDefault: z.boolean(),
+  phoneShip: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+const AddressResponseSchema = z.object({
+  code: z.number(),
+  result: z.array(AddressSchema),
 });
 
 const CreateAddressResponseSchema = z.object({
-  addressId: UUIDSchema,
-  profileId: UUIDSchema,
-  street: z.string(),
-  city: z.string(),
-  detail: z.string(),
-  type: AddressTypeSchema,
+  code: z.number(),
+  result: AddressSchema,
 });
 
-const GetAllAddressesResponseSchema = z.array(AddressSchema);
+const GetAllAddressesResponseSchema = z.object({
+  code: z.number(),
+  result: z.array(AddressSchema),
+});
 
 const SetDefaultAddressResponseSchema = z.object({
   success: z.boolean(),
@@ -40,9 +53,18 @@ const UpdateAddressTypeResponseSchema = z.object({
   type: AddressTypeSchema,
 });
 
-export type CreateAddressPayload = z.infer<typeof CreateAddressPayloadSchema>;
+const DeleteAddressResponseSchema = z.object({
+  code: z.number(),
+  success: z.boolean(),
+});
+
+export type CreateAddress = z.infer<typeof CreateAddressSchema>;
+export type DeleteResponseAddress = z.infer<typeof DeleteAddressResponseSchema>;
+export type UpdateAddress = z.infer<typeof CreateAddressSchema>;
 export type Address = z.infer<typeof AddressSchema>;
+export type AddressResponse = z.infer<typeof AddressResponseSchema>;
 export type CreateAddressResponse = z.infer<typeof CreateAddressResponseSchema>;
+export type UpdateAddressResponse = z.infer<typeof CreateAddressResponseSchema>;
 export type GetAllAddressesResponse = z.infer<
   typeof GetAllAddressesResponseSchema
 >;
@@ -52,13 +74,3 @@ export type SetDefaultAddressResponse = z.infer<
 export type UpdateAddressTypeResponse = z.infer<
   typeof UpdateAddressTypeResponseSchema
 >;
-
-export const AddressSchemas = {
-  CREATE: {
-    payload: CreateAddressPayloadSchema,
-    response: CreateAddressResponseSchema,
-  },
-  GET_ALL: { response: GetAllAddressesResponseSchema },
-  SET_DEFAULT: { response: SetDefaultAddressResponseSchema },
-  UPDATE_TYPE: { response: UpdateAddressTypeResponseSchema },
-};

@@ -17,8 +17,8 @@ import { ENDPOINTS } from "@/lib/axios/endpoint";
 import { LoginPayload, LoginPayloadSchema, LoginResponse } from "@/schema/auth";
 
 import { setAccessToken } from "@/lib/storage";
-import { useAppDispatch } from "@/redux/hooks";
-import { getInfo } from "@/redux/thunks/account";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { getAccountInfo } from "@/redux/thunks/account";
 import { FaRegCircleUser } from "react-icons/fa6";
 import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 import { MdOutlineLock } from "react-icons/md";
@@ -29,6 +29,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const { isLoading } = useAppSelector((state) => state.account);
 
   const form = useForm<LoginPayload>({
     resolver: zodResolver(LoginPayloadSchema),
@@ -70,7 +71,6 @@ const Login = () => {
       "-=0.4"
     ); // Start slightly before the previous animation ends
 
-    // Clean up function
     return () => {
       timeline.kill();
     };
@@ -88,14 +88,10 @@ const Login = () => {
         setAccessToken(token);
 
         try {
-          // Dispatch the getInfo action to fetch account information
-          await dispatch(getInfo()).unwrap();
-
-          // Only navigate after successful account info fetch
+          await dispatch(getAccountInfo()).unwrap();
           toast.success("Đăng nhập thành công");
           navigate("/");
         } catch (infoError) {
-          // Handle the case where fetching account info fails
           toast.error(
             "Đăng nhập thành công, nhưng không thể tải thông tin tài khoản"
           );
@@ -209,8 +205,16 @@ const Login = () => {
             <Button
               type="submit"
               className="form-element w-full h-10 sm:h-12 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-medium rounded-lg transition-all duration-300 shadow-md hover:shadow-lg"
+              disabled={isLoading}
             >
-              Login
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  <span>Pending...</span>
+                </div>
+              ) : (
+                "Login"
+              )}
             </Button>
 
             <div className="mt-4 sm:mt-6 text-center text-xs sm:text-sm form-element">
