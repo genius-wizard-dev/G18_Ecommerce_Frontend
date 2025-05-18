@@ -18,7 +18,7 @@ import { getProfile } from "./redux/thunks/profile";
 const LoadingComponent = () => (
   <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
     <div className="text-lg font-semibold text-gray-700 animate-pulse">
-      Đang tải...
+      Đang tải....
     </div>
     <div className="mt-2 text-sm text-gray-500 animate-fade-in">
       Vui lòng chờ trong giây lát
