@@ -14,6 +14,7 @@ import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import { getAccountInfo } from "./redux/thunks/account";
 import { getAllAddress } from "./redux/thunks/address";
 import { getProfile } from "./redux/thunks/profile";
+import Dashboard from "./pages/dashboard/dashboard";
 
 const LoadingComponent = () => (
   <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
@@ -74,6 +75,7 @@ function App() {
             <Route path="products" element={<Products />} />
             <Route path="profile" element={<Profile />} />
             <Route path="cart" element={<CartPage />} />
+            <Route path="dashboard" element={<Dashboard />}/>
             {/* Các route con khác sẽ được thêm vào đây */}
             {/* <Route path="/:page" element={<PageRender />} />
               <Route path="/:page/:id" element={<PageRender />} /> */}
