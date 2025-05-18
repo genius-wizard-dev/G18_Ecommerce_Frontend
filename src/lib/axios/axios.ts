@@ -41,14 +41,44 @@ class ApiClient {
       });
 
       ApiClient.instance.interceptors.request.use(
-        (config: InternalAxiosRequestConfig) => {
-          const token = localStorage.getItem("access_token");
-          if (token && config.headers) {
-            config.headers.Authorization = `Bearer ${token}`;
+        async (config: InternalAxiosRequestConfig) => {
+          const publicEndpoints = [
+            ENDPOINTS.AUTH.REFRESH,
+            ENDPOINTS.AUTH.LOGIN,
+            ENDPOINTS.AUTH.REGISTER,
+            ENDPOINTS.AUTH.LOGOUT,
+          ];
+
+          const isPublicRequest = publicEndpoints.some((endpoint) =>
+            config.url?.includes(endpoint)
+          );
+
+          if (!isPublicRequest) {
+            const token = localStorage.getItem("access_token");
+            if (token && config.headers) {
+              config.headers.Authorization = `Bearer ${token}`;
+              try {
+                const introspectResponse = await axios.post(
+                  `${import.meta.env.VITE_API_URL}${ENDPOINTS.AUTH.INTROSPECT}`,
+                  { token }
+                );
+                if (
+                  introspectResponse.data?.code === 1000 &&
+                  introspectResponse.data?.result?.valid === false
+                ) {
+                  localStorage.removeItem("access_token");
+                  window.location.reload();
+                }
+              } catch (error) {
+                console.error("Introspect API error:", error);
+              }
+            }
           }
+
           return config;
         },
         (error) => {
+          console.log("Request Error:", error);
           return Promise.reject(error);
         }
       );
@@ -114,12 +144,12 @@ class ApiClient {
                 return Promise.reject(error);
               }
 
-              // Tạo instance mới để tránh vòng lặp interceptor
-              console.log(
-                `Calling refresh token API at: ${import.meta.env.VITE_API_URL}${
-                  ENDPOINTS.AUTH.REFRESH
-                }`
-              );
+              // // Tạo instance mới để tránh vòng lặp interceptor
+              // console.log(
+              //   `Calling refresh token API at: ${import.meta.env.VITE_API_URL}${
+              //     ENDPOINTS.AUTH.REFRESH
+              //   }`
+              // );
               const refreshResponse = await axios.post(
                 `${import.meta.env.VITE_API_URL}${ENDPOINTS.AUTH.REFRESH}`,
                 {
@@ -127,11 +157,11 @@ class ApiClient {
                 }
               );
 
-              console.log("Refresh API response:", {
-                status: refreshResponse.status,
-                code: refreshResponse.data?.code,
-                hasResult: !!refreshResponse.data?.result,
-              });
+              // console.log("Refresh API response:", {
+              //   status: refreshResponse.status,
+              //   code: refreshResponse.data?.code,
+              //   hasResult: !!refreshResponse.data?.result,
+              // });
 
               if (
                 refreshResponse.data &&
@@ -154,12 +184,12 @@ class ApiClient {
                 ApiClient.isRefreshing = false;
 
                 // Thử lại request ban đầu
-                console.log("Retrying original request with new token");
                 return ApiClient.instance(originalRequest);
               } else {
                 console.log("Token refresh failed: Invalid response format");
                 ApiClient.processQueue(error);
                 ApiClient.isRefreshing = false;
+                localStorage.removeItem("access_token");
                 return Promise.reject(error);
               }
             } catch (refreshError: any) {
