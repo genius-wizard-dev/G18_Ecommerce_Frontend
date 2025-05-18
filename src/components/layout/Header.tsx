@@ -36,6 +36,7 @@ export default function Header() {
       dispatch(clearAccount());
       setShowUserMenu(false);
       removeAccessToken();
+      window.location.href = "/";
     });
   };
 
