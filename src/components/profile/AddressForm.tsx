@@ -17,7 +17,7 @@ import {
   District,
   Province,
   Ward,
-} from "@/types/address";
+} from "@/schema/address";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
@@ -34,9 +34,10 @@ import {
 
 interface AddressFormProps {
   address: Address[];
+  profileId: string;
 }
 
-export const AddressForm = ({ address }: AddressFormProps) => {
+export const AddressForm = ({ address, profileId }: AddressFormProps) => {
   const dispatch = useAppDispatch();
   const {
     provinces,
@@ -44,7 +45,7 @@ export const AddressForm = ({ address }: AddressFormProps) => {
     wards,
     isLoading: locationLoading,
   } = useAppSelector((state) => state.location);
-  const { isLoading: addressLoading } = useAppSelector(
+  const { isCreating, isUpdating, isDeleting } = useAppSelector(
     (state) => state.address
   );
 
@@ -132,7 +133,7 @@ export const AddressForm = ({ address }: AddressFormProps) => {
     try {
       setIsLoadingAddress(true);
       // Tìm và set tỉnh/thành phố
-      const province = provinces.find((p) => p.name === addr.city);
+      const province = provinces.find((p: Province) => p.name === addr.city);
       if (province) {
         dispatch(selectProvince(province));
         setSelectedProvinceLocal(province);
@@ -209,7 +210,7 @@ export const AddressForm = ({ address }: AddressFormProps) => {
       await dispatch(
         createAddress({
           address: addressData as Address,
-          profileId: "", // TODO: Add profileId
+          profileId: profileId,
         })
       ).unwrap();
 
@@ -259,7 +260,7 @@ export const AddressForm = ({ address }: AddressFormProps) => {
   };
 
   const handleDeleteAddress = async (addressId: string) => {
-    if (addressLoading) return; // Prevent spam click when loading
+    if (isDeleting) return; // Prevent spam click when loading
 
     try {
       await dispatch(deleteAddress({ addressId })).unwrap();
@@ -284,6 +285,8 @@ export const AddressForm = ({ address }: AddressFormProps) => {
           variant="outline"
           size="sm"
           onClick={() => setIsAddingAddress(true)}
+          className="bg-blue-500 hover:bg-blue-600 text-white relative"
+          disabled={isCreating}
         >
           Thêm địa chỉ mới
         </Button>
@@ -306,15 +309,17 @@ export const AddressForm = ({ address }: AddressFormProps) => {
                     <SelectValue placeholder="Chọn tỉnh/thành phố" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border rounded-md shadow-lg max-h-[300px]">
-                    {provinces.map((province) => (
-                      <SelectItem
-                        key={province.code}
-                        value={province.code.toString()}
-                        className="hover:bg-gray-100 cursor-pointer py-2"
-                      >
-                        {province.name}
-                      </SelectItem>
-                    ))}
+                    {provinces.map(
+                      (province: { code: number; name: string }) => (
+                        <SelectItem
+                          key={province.code}
+                          value={province.code.toString()}
+                          className="hover:bg-gray-100 cursor-pointer py-2"
+                        >
+                          {province.name}
+                        </SelectItem>
+                      )
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -335,15 +340,17 @@ export const AddressForm = ({ address }: AddressFormProps) => {
                     <SelectValue placeholder="Chọn quận/huyện" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border rounded-md shadow-lg max-h-[300px]">
-                    {districts.map((district) => (
-                      <SelectItem
-                        key={district.code}
-                        value={district.code.toString()}
-                        className="hover:bg-gray-100 cursor-pointer py-2"
-                      >
-                        {district.name}
-                      </SelectItem>
-                    ))}
+                    {districts.map(
+                      (district: { code: number; name: string }) => (
+                        <SelectItem
+                          key={district.code}
+                          value={district.code.toString()}
+                          className="hover:bg-gray-100 cursor-pointer py-2"
+                        >
+                          {district.name}
+                        </SelectItem>
+                      )
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -364,7 +371,7 @@ export const AddressForm = ({ address }: AddressFormProps) => {
                     <SelectValue placeholder="Chọn phường/xã" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border rounded-md shadow-lg max-h-[300px]">
-                    {wards.map((ward) => (
+                    {wards.map((ward: { code: number; name: string }) => (
                       <SelectItem
                         key={ward.code}
                         value={ward.code.toString()}
@@ -473,10 +480,23 @@ export const AddressForm = ({ address }: AddressFormProps) => {
                 onClick={
                   isEditingAddress ? handleUpdateAddress : handleAddAddress
                 }
-                className="h-10 px-4"
-                disabled={isLoadingAddress}
+                className="h-10 px-4 bg-blue-500 hover:bg-blue-600 text-white relative"
+                disabled={isCreating || isUpdating}
               >
-                {isEditingAddress ? "Cập nhật địa chỉ" : "Thêm địa chỉ"}
+                {isCreating || isUpdating ? (
+                  <>
+                    <span className="opacity-0">
+                      {isEditingAddress ? "Cập nhật địa chỉ" : "Thêm địa chỉ"}
+                    </span>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  </>
+                ) : isEditingAddress ? (
+                  "Cập nhật địa chỉ"
+                ) : (
+                  "Thêm địa chỉ"
+                )}
               </Button>
             </div>
           </CardContent>
@@ -513,7 +533,7 @@ export const AddressForm = ({ address }: AddressFormProps) => {
                     variant="outline"
                     size="sm"
                     onClick={() => handleEditAddress(addr)}
-                    disabled={addressLoading}
+                    disabled={isUpdating}
                   >
                     Chỉnh sửa
                   </Button>
@@ -521,10 +541,10 @@ export const AddressForm = ({ address }: AddressFormProps) => {
                     variant="destructive"
                     size="sm"
                     onClick={() => handleDeleteAddress(addr.id)}
-                    disabled={addressLoading}
+                    disabled={isDeleting}
                     className="bg-red-500 hover:bg-red-600 text-white relative"
                   >
-                    {addressLoading ? (
+                    {isDeleting ? (
                       <>
                         <span className="opacity-0">Xóa</span>
                         <div className="absolute inset-0 flex items-center justify-center">
