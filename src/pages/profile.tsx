@@ -2,7 +2,7 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { getAllAddress } from "@/redux/thunks/address";
 import { fetchProvinces } from "@/redux/thunks/location";
 import { updateProfile } from "@/redux/thunks/profile";
-import { Profile } from "@/types/profile";
+import { Profile } from "@/schema/profile";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
