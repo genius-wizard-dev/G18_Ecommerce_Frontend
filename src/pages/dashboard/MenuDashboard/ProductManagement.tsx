@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-// Define Product interface
+// Define Product interface with array of images
 interface Product {
   id: string;
   name: string;
   price: number;
   quantity: number;
-  image?: string;
+  image?: string[]; // Array to support multiple images
   discount?: number;
 }
 
@@ -15,7 +15,7 @@ const ProductManagement: React.FC = () => {
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [quantity, setQuantity] = useState('');
-  const [image, setImage] = useState<string | undefined>(undefined);
+  const [images, setImages] = useState<string[]>([]); // Array for multiple images
   const [discount, setDiscount] = useState('');
   const [editId, setEditId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -42,28 +42,36 @@ const ProductManagement: React.FC = () => {
     }
   }, [products]);
 
-  // Handle file selection
+  // Handle multiple file selection
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (!file.type.startsWith('image/')) {
-        alert('Vui lòng chọn một tệp hình ảnh.');
-        return;
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        alert('Hình ảnh quá lớn. Vui lòng chọn tệp dưới 5MB.');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === 'string') {
-          setImage(reader.result);
+    const files = e.target.files;
+    if (files) {
+      const fileArray = Array.from(files);
+      const validImages: string[] = [];
+
+      for (const file of fileArray) {
+        if (!file.type.startsWith('image/')) {
+          alert(`Tệp ${file.name} không phải là hình ảnh.`);
+          continue;
         }
-      };
-      reader.onerror = () => {
-        alert('Lỗi khi đọc tệp hình ảnh.');
-      };
-      reader.readAsDataURL(file);
+        if (file.size > 5 * 1024 * 1024) {
+          alert(`Hình ảnh ${file.name} quá lớn. Vui lòng chọn tệp dưới 5MB.`);
+          continue;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+          if (typeof reader.result === 'string') {
+            validImages.push(reader.result);
+            if (validImages.length === fileArray.length) {
+              setImages(validImages); // Update state when all files are processed
+            }
+          }
+        };
+        reader.onerror = () => {
+          alert(`Lỗi khi đọc tệp ${file.name}.`);
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
 
@@ -73,6 +81,7 @@ const ProductManagement: React.FC = () => {
     const parsedQuantity = Number(quantity);
     const parsedDiscount = discount ? Number(discount) : undefined;
 
+    // Validation
     if (isNaN(parsedPrice) || parsedPrice < 0) {
       alert('Giá phải là một số không âm.');
       return;
@@ -85,7 +94,7 @@ const ProductManagement: React.FC = () => {
       alert('Tên sản phẩm không được để trống.');
       return;
     }
-    if (parsedDiscount && (parsedDiscount < 0 || parsedDiscount > 100)) {
+    if (parsedDiscount !== undefined && (parsedDiscount < 0 || parsedDiscount > 100)) {
       alert('Giảm giá phải từ 0 đến 100%.');
       return;
     }
@@ -94,7 +103,7 @@ const ProductManagement: React.FC = () => {
       setProducts(
         products.map((product) =>
           product.id === editId
-            ? { ...product, name, price: parsedPrice, quantity: parsedQuantity, image, discount: parsedDiscount }
+            ? { ...product, name, price: parsedPrice, quantity: parsedQuantity, image: images.length > 0 ? images : product.image, discount: parsedDiscount }
             : product
         )
       );
@@ -105,15 +114,16 @@ const ProductManagement: React.FC = () => {
         name,
         price: parsedPrice,
         quantity: parsedQuantity,
-        image,
+        image: images.length > 0 ? images : undefined,
         discount: parsedDiscount,
       };
       setProducts([...products, newProduct]);
     }
+    // Reset form
     setName('');
     setPrice('');
     setQuantity('');
-    setImage(undefined);
+    setImages([]);
     setDiscount('');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -124,7 +134,7 @@ const ProductManagement: React.FC = () => {
     setName(product.name);
     setPrice(product.price.toString());
     setQuantity(product.quantity.toString());
-    setImage(product.image);
+    setImages(product.image || []);
     setDiscount(product.discount?.toString() || '');
     setEditId(product.id);
     if (fileInputRef.current) {
@@ -244,6 +254,7 @@ const ProductManagement: React.FC = () => {
               onChange={(e) => setPrice(e.target.value)}
               className="w-full p-2 border rounded"
               required
+              min="0"
             />
           </div>
           <div className="mb-4">
@@ -254,6 +265,7 @@ const ProductManagement: React.FC = () => {
               onChange={(e) => setQuantity(e.target.value)}
               className="w-full p-2 border rounded"
               required
+              min="0"
             />
           </div>
           <div className="mb-4">
@@ -261,18 +273,24 @@ const ProductManagement: React.FC = () => {
             <input
               type="file"
               accept="image/*"
+              multiple // Enable multiple file selection
               onChange={handleImageChange}
               className="w-full p-2 border rounded"
               ref={fileInputRef}
             />
-            {image && (
+            {images.length > 0 && (
               <div className="mt-2">
                 <p className="text-sm">Xem trước:</p>
-                <img
-                  src={image}
-                  alt="Preview"
-                  className="w-32 h-32 object-cover rounded"
-                />
+                <div className="flex flex-wrap gap-2">
+                  {images.map((img, index) => (
+                    <img
+                      key={index}
+                      src={img}
+                      alt={`Preview ${index + 1}`}
+                      className="w-32 h-32 object-cover rounded"
+                    />
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -283,6 +301,8 @@ const ProductManagement: React.FC = () => {
               value={discount}
               onChange={(e) => setDiscount(e.target.value)}
               className="w-full p-2 border rounded"
+              min="0"
+              max="100"
             />
           </div>
           <div className="flex gap-2">
@@ -300,7 +320,7 @@ const ProductManagement: React.FC = () => {
                   setName('');
                   setPrice('');
                   setQuantity('');
-                  setImage(undefined);
+                  setImages([]);
                   setDiscount('');
                   if (fileInputRef.current) {
                     fileInputRef.current.value = '';
@@ -343,12 +363,22 @@ const ProductManagement: React.FC = () => {
                   <td className="p-2">{product.price.toLocaleString()}₫</td>
                   <td className="p-2">{product.quantity}</td>
                   <td className="p-2">
-                    {product.image ? (
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-16 h-16 object-cover rounded"
-                      />
+                    {product.image && product.image.length > 0 ? (
+                      <div className="flex flex-wrap gap-2">
+                        {product.image.slice(0, 3).map((img, index) => (
+                          <img
+                            key={index}
+                            src={img}
+                            alt={`${product.name} ${index + 1}`}
+                            className="w-16 h-16 object-cover rounded"
+                          />
+                        ))}
+                        {product.image.length > 3 && (
+                          <span className="text-sm text-gray-500">
+                            +{product.image.length - 3} more
+                          </span>
+                        )}
+                      </div>
                     ) : (
                       'N/A'
                     )}
