@@ -1,10 +1,10 @@
 import api from "@/lib/axios/api.service";
 import { ENDPOINTS } from "@/lib/axios/endpoint";
-import { Profile, ProfileResponse } from "@/types/profile";
+import { Profile, ProfileResponse } from "@/schema/profile";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 export const getProfile = createAsyncThunk<
-  Profile,
+  ProfileResponse,
   string,
   { rejectValue: string }
 >("profile/getProfile", async (userId: string, { rejectWithValue }) => {
@@ -12,7 +12,7 @@ export const getProfile = createAsyncThunk<
     const response = await api.get<ProfileResponse>(
       ENDPOINTS.PROFILE.INFO(userId)
     );
-    return response.result;
+    return response;
   } catch (error: any) {
     return rejectWithValue(
       error.response?.data?.message || "Failed to fetch profile information"
@@ -21,7 +21,7 @@ export const getProfile = createAsyncThunk<
 });
 
 export const updateProfile = createAsyncThunk<
-  Profile,
+  ProfileResponse,
   { userId: string; profileData: Partial<Profile> },
   { rejectValue: string }
 >(
@@ -29,10 +29,10 @@ export const updateProfile = createAsyncThunk<
   async ({ userId, profileData }, { rejectWithValue }) => {
     try {
       const response = await api.put<ProfileResponse>(
-        ENDPOINTS.PROFILE.UPDATE(userId),
+        ENDPOINTS.PROFILE.INFO(userId),
         profileData
       );
-      return response.result;
+      return response;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to update profile"

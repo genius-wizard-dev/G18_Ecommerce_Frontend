@@ -1,6 +1,6 @@
-import { Account } from "@/types/account";
+import { Account, AccountResponse } from "@/schema/account";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import { getInfo } from "../thunks/account";
+import { getAccountInfo } from "../thunks/account";
 
 interface AccountState {
   account: Account | null;
@@ -37,17 +37,24 @@ const accountSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getInfo.pending, (state) => {
+      .addCase(getAccountInfo.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(getInfo.fulfilled, (state, action: PayloadAction<Account>) => {
-        state.isLoading = false;
-        // If your API returns data in a nested structure, adjust accordingly
-        state.account = action.payload;
-        state.isAuthenticated = true;
-      })
-      .addCase(getInfo.rejected, (state, action) => {
+      .addCase(
+        getAccountInfo.fulfilled,
+        (state, action: PayloadAction<AccountResponse>) => {
+          state.isLoading = false;
+          if (action.payload.code === 1000) {
+            state.account = action.payload.result;
+            state.isAuthenticated = true;
+          } else {
+            state.isAuthenticated = false;
+            state.account = null;
+          }
+        }
+      )
+      .addCase(getAccountInfo.rejected, (state, action) => {
         state.isLoading = false;
         state.error =
           (action.payload as string) || "Failed to fetch account information";

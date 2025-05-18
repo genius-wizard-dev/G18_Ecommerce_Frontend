@@ -1,36 +1,30 @@
-const BASE_ENDPOINT = "";
-
 export const ENDPOINTS = {
   AUTH: {
-    LOGIN: `${BASE_ENDPOINT}/identity/auth/log-in`,
-    REGISTER: `${BASE_ENDPOINT}/identity/users/sign-up`,
-    LOGOUT: `${BASE_ENDPOINT}/identity/auth/logout`,
-    REFRESH: `${BASE_ENDPOINT}/identity/auth/refresh`,
-    INTROSPECT: `${BASE_ENDPOINT}/identity/auth/introspect`,
-    MY_INFO: `${BASE_ENDPOINT}/identity/users/my-info`,
-    DELETE_ACCOUNT: (userId: string) =>
-      `${BASE_ENDPOINT}/identity/users/${userId}`,
+    LOGIN: `/identity/auth/log-in`,
+    REGISTER: `/identity/users/sign-up`,
+    LOGOUT: `/identity/auth/logout`,
+    REFRESH: `/identity/auth/refresh`,
+    INTROSPECT: `/identity/auth/introspect`,
+    MY_INFO: `/identity/users/my-info`,
+    DELETE_ACCOUNT: (userId: string) => `/identity/users/${userId}`,
   },
   PROFILE: {
-    UPDATE: (userId: string) => `${BASE_ENDPOINT}/profile/${userId}`,
-    INFO: (userId: string) => `${BASE_ENDPOINT}/profile/my-
-    profile/${userId}`,
-    REGISTER_SHOP: (profileId: string) =>
-      `${BASE_ENDPOINT}/profile/register-shop/${profileId}`,
+    INFO: (userId: string) => `/profile/${userId}`,
+    REGISTER_SHOP: (profileId: string) => `/profile/register-shop/${profileId}`,
   },
   ADDRESS: {
-    CREATE: (profileId: string) =>
-      `${BASE_ENDPOINT}/profile/address/create/${profileId}`,
-    GET_ALL: (profileId: string) =>
-      `${BASE_ENDPOINT}/profile/address/get-all/${profileId}`,
+    CREATE: (profileId: string) => `/profile/address/create/${profileId}`,
+    GET_ALL: (profileId: string) => `/profile/address/get-all/${profileId}`,
     SET_DEFAULT: (profileId: string, addressId: string) =>
-      `${BASE_ENDPOINT}/profile/address/set-default/${profileId}/${addressId}`,
+      `/profile/address/set-default/${profileId}/${addressId}`,
     UPDATE_TYPE: (addressId: string, type: string) =>
-      `${BASE_ENDPOINT}/profile/address/update-type/${addressId}?type=${type}`,
+      `/profile/address/update-type/${addressId}?type=${type}`,
+    UPDATE: (addressId: string) => `/profile/address/update/${addressId}`,
+    DELETE: (addressId: string) => `/profile/address/delete/${addressId}`,
   },
   PRODUCT: {
     GET_ALL: (page?: number, limit?: number, category?: string) =>
-      `${BASE_ENDPOINT}/api/products${
+      `/api/products${
         page || limit || category
           ? `?${[
               page ? `page=${page}` : "",
@@ -41,7 +35,6 @@ export const ENDPOINTS = {
               .join("&")}`
           : ""
       }`,
-    GET_BY_ID: (productId: string) =>
-      `${BASE_ENDPOINT}/api/products/${productId}`,
+    GET_BY_ID: (productId: string) => `/api/products/${productId}`,
   },
 };
