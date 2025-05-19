@@ -1,14 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { ChangeEvent, useRef } from "react";
+import { CloudinaryConfig } from "./cloudinary.config";
 
-interface CloudinaryUploadWidgetProps {
-  uwConfig: {
-    cloudName: string;
-    uploadPreset: string;
-    [key: string]: any;
-  };
-  setPublicIds: (publicIds: string[]) => void;
+interface FileUploadProps {
+  config: CloudinaryConfig;
+  onSelectFiles: (files: File[]) => void;
   buttonText?: string;
   variant?:
     | "default"
@@ -19,107 +16,66 @@ interface CloudinaryUploadWidgetProps {
     | "destructive";
   className?: string;
   multiple?: boolean;
+  isUploading?: boolean;
+  setIsUploading?: (isUploading: boolean) => void;
 }
 
-declare global {
-  interface Window {
-    cloudinary: {
-      createUploadWidget: (
-        config: any,
-        callback: (error: any, result: any) => void
-      ) => {
-        open: () => void;
-      };
-    };
-  }
-}
-
-const CloudinaryUploadWidget = ({
-  uwConfig,
-  setPublicIds,
-  buttonText = "Tải lên",
+const FileUpload = ({
+  config,
+  onSelectFiles,
+  buttonText = "Chọn ảnh",
   variant = "outline",
   className = "",
   multiple = true,
-}: CloudinaryUploadWidgetProps) => {
-  const uploadWidgetRef = useRef<any>(null);
-  const uploadButtonRef = useRef<HTMLButtonElement>(null);
-  const uploadedFiles = useRef<string[]>([]);
+  isUploading = false,
+  setIsUploading = () => {},
+}: FileUploadProps) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    const initializeUploadWidget = () => {
-      if (window.cloudinary && uploadButtonRef.current) {
-        // Create upload widget with updated config
-        const config = {
-          ...uwConfig,
-          multiple: multiple,
-        };
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-        uploadWidgetRef.current = window.cloudinary.createUploadWidget(
-          config,
-          (error: any, result: any) => {
-            if (!error && result) {
-              if (result.event === "success") {
-                console.log("Upload successful:", result.info);
-                const publicId = result.info.public_id;
-
-                if (multiple) {
-                  // Add to array for multiple uploads
-                  uploadedFiles.current = [...uploadedFiles.current, publicId];
-                  setPublicIds(uploadedFiles.current);
-                } else {
-                  // Single upload mode
-                  uploadedFiles.current = [publicId];
-                  setPublicIds([publicId]);
-                }
-              }
-
-              if (result.event === "close") {
-                // Widget closed, ensure we've captured all uploads
-                if (uploadedFiles.current.length > 0) {
-                  setPublicIds([...uploadedFiles.current]);
-                }
-              }
-            }
-          }
-        );
-
-        // Add click event to open widget
-        const handleUploadClick = () => {
-          if (!multiple) {
-            // Reset for single upload mode
-            uploadedFiles.current = [];
-          }
-
-          if (uploadWidgetRef.current) {
-            uploadWidgetRef.current.open();
-          }
-        };
-
-        const buttonElement = uploadButtonRef.current;
-        buttonElement.addEventListener("click", handleUploadClick);
-
-        // Cleanup
-        return () => {
-          buttonElement.removeEventListener("click", handleUploadClick);
-        };
+    try {
+      const fileArray = Array.from(files);
+      onSelectFiles(fileArray);
+    } catch (error) {
+      console.error("Error selecting files:", error);
+      alert("Chọn ảnh thất bại. Vui lòng thử lại.");
+    } finally {
+      // Reset input để có thể chọn lại cùng file nếu cần
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
       }
-    };
+    }
+  };
 
-    initializeUploadWidget();
-  }, [uwConfig, setPublicIds, multiple]);
+  const handleButtonClick = () => {
+    fileInputRef.current?.click();
+  };
 
   return (
-    <Button
-      ref={uploadButtonRef}
-      variant={variant}
-      className={className}
-      type="button"
-    >
-      <Upload className="w-4 h-4 mr-2" />
-      {buttonText}
-    </Button>
+    <>
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/*"
+        multiple={multiple}
+        className="hidden"
+      />
+      <Button
+        variant={variant}
+        className={className}
+        type="button"
+        onClick={handleButtonClick}
+        disabled={isUploading}
+      >
+        <Upload className="w-4 h-4 mr-2" />
+        {isUploading ? "Đang tải lên..." : buttonText}
+      </Button>
+    </>
   );
 };
 
-export default CloudinaryUploadWidget;
+export default FileUpload;

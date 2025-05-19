@@ -28,28 +28,38 @@ export const ENDPOINTS = {
     DELETE: (addressId: string) => `/profile/address/delete/${addressId}`,
   },
   PRODUCT: {
+    CREATE: "/api/products",
     GET_ALL: (page?: number, limit?: number, category?: string) =>
-      `/api/products${page || limit || category
-        ? `?${[
-          page ? `page=${page}` : "",
-          limit ? `limit=${limit}` : "",
-          category ? `category=${category}` : "",
-        ]
-          .filter(Boolean)
-          .join("&")}`
-        : ""
+      `/api/products${
+        page || limit || category
+          ? `?${[
+              page ? `page=${page}` : "",
+              limit ? `limit=${limit}` : "",
+              category ? `category=${category}` : "",
+            ]
+              .filter(Boolean)
+              .join("&")}`
+          : ""
       }`,
     GET_BY_ID: (productId: string) => `/api/products/${productId}`,
+    GET_BY_SHOP: (shopId: string) => `/api/products?shopId=${shopId}`,
   },
   CART: {
     GET_CART: (userId: string) => `/api/carts/users/${userId}`,
     ADD_TO_CART: `/api/carts/cart-items`,
     UPDATE_QUANTITY: (cartId: string) => `/api/carts/cart-items/${cartId}`,
-    DELETE_CART_ITEM: (cartItemId: string) => `/api/carts/carts-items/${cartItemId}`,
-    DELETE_CART: (userId: string) => `/api/carts/users/${userId}`
+    DELETE_CART_ITEM: (cartItemId: string) =>
+      `/api/carts/carts-items/${cartItemId}`,
+    DELETE_CART: (userId: string) => `/api/carts/users/${userId}`,
   },
   DISCOUNT: {
-    GET_DISCOUNTS_BY_SHOP: (shopId: string) => `/api/discounts?shopId=${shopId}`,
-    APPLY_DISCOUNT: "/api/carts/apply-discount"
-  }
+    GET_DISCOUNTS_BY_SHOP: (shopId: string) =>
+      `/api/discounts?shopId=${shopId}`,
+    APPLY_DISCOUNT: "/api/carts/apply-discount",
+  },
+  INVENTORY: {
+    CREATE: "/api/inventories",
+    GET_BY_PRODUCT_ID: (productId: string) =>
+      `/api/inventories?product_id=${productId}`,
+  },
 };
