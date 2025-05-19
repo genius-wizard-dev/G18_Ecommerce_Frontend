@@ -12,6 +12,7 @@ export interface CartItem {
     price: number;
     image: string;
     quantity: number;
+    appliedDiscount: boolean;
 }
 
 export interface CartItemBody {
