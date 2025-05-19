@@ -15,6 +15,7 @@ import Register from "./pages/register";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import { getAccountInfo } from "./redux/thunks/account";
 import { getAllAddress } from "./redux/thunks/address";
+import { getCart } from "./redux/thunks/cart";
 import { getProfile } from "./redux/thunks/profile";
 
 const LoadingComponent = () => (
@@ -56,6 +57,7 @@ function App() {
   useEffect(() => {
     if (profile?.id) {
       dispatch(getAllAddress(profile.id));
+      dispatch(getCart(profile.id));
     }
   }, [dispatch, profile]);
   return (

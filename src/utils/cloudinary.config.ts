@@ -13,16 +13,13 @@
  *    - Truy cập vào Settings > Upload trong Dashboard
  *    - Trong mục "Upload presets", tạo một preset mới
  *    - Đặt "Upload preset name" và cấu hình các tùy chọn khác
- *    - Lưu ý đặt "Signing Mode" là "Unsigned" nếu bạn muốn upload trực tiếp từ client
+ *    - LƯU Ý QUAN TRỌNG: Đặt "Signing Mode" là "Unsigned" và đảm bảo preset được whitelist cho unsigned uploads
  */
 
 export interface CloudinaryConfig {
   cloudName: string;
   uploadPreset: string;
   folder?: string; // Tùy chọn: thư mục lưu trữ
-  cropping?: boolean; // Tùy chọn: cho phép cắt ảnh
-  multiple?: boolean; // Tùy chọn: cho phép tải nhiều ảnh
-  // Thêm các tùy chọn khác nếu cần
 }
 
 /**
@@ -30,10 +27,8 @@ export interface CloudinaryConfig {
  */
 export const CLOUDINARY_CONFIG: CloudinaryConfig = {
   cloudName: "dxv7grpa8",
-  uploadPreset: "ml_default",
+  uploadPreset: "g18_ecommerce_unsigned",
   folder: "g18_ecommerce",
-  cropping: true,
-  multiple: true,
 };
 
 export const getCloudinaryImageUrl = (
@@ -42,6 +37,48 @@ export const getCloudinaryImageUrl = (
   transformations: string = ""
 ): string => {
   return `https://res.cloudinary.com/${cloudName}/image/upload/${transformations}${publicId}`;
+};
+
+// Hàm upload file lên Cloudinary
+export const uploadToCloudinary = async (
+  file: File,
+  config: CloudinaryConfig
+): Promise<string> => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", config.uploadPreset);
+  if (config.folder) {
+    formData.append("folder", config.folder);
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${config.cloudName}/image/upload`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Upload failed: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.public_id;
+  } catch (error) {
+    console.error("Error uploading to Cloudinary:", error);
+    throw error;
+  }
+};
+
+// Hàm upload nhiều file lên Cloudinary
+export const uploadMultipleToCloudinary = async (
+  files: File[],
+  config: CloudinaryConfig
+): Promise<string[]> => {
+  const uploadPromises = files.map((file) => uploadToCloudinary(file, config));
+  return Promise.all(uploadPromises);
 };
 
 /**
