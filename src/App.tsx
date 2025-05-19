@@ -8,6 +8,7 @@ import CartPage from "./pages/cart";
 import Dashboard from "./pages/dashboard/dashboard";
 import HomePage from "./pages/home";
 import Login from "./pages/login";
+import ProductDetails from "./pages/product.details";
 import Products from "./pages/products";
 import Profile from "./pages/profile";
 import Register from "./pages/register";
@@ -57,7 +58,6 @@ function App() {
       dispatch(getAllAddress(profile.id));
     }
   }, [dispatch, profile]);
-
   return (
     <BrowserRouter>
       <Suspense fallback={<LoadingComponent />}>
@@ -79,11 +79,9 @@ function App() {
             <Route path="/" element={<MainLayout />}>
               <Route index element={<HomePage />} />
               <Route path="products" element={<Products />} />
-              {/* <Route path="product/:id" element={<ProductDetails />} /> */}
+              <Route path="product/:id" element={<ProductDetails />} />
               <Route path="profile" element={<Profile />} />
               <Route path="cart" element={<CartPage />} />
-
-
               <Route path="dashboard" element={<Dashboard />} />
             </Route>
           </Routes>
