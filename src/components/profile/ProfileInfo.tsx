@@ -11,6 +11,7 @@ import {
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { AddressForm } from "./AddressForm";
+import { useState } from "react";
 
 interface ProfileInfoProps {
   profile: Profile | null;
@@ -40,6 +41,21 @@ const ProfileInfo = ({
     if (!dateString) return "N/A";
     const date = new Date(dateString);
     return new Intl.DateTimeFormat("vi-VN").format(date);
+  };
+
+  const [birthday, setBirthday] = useState<string | null>(null);
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+
+    // Chuyển định dạng thành yyyy-mm-dd
+    const date = new Date(value);
+    const formattedDate = date.toISOString().split("T")[0];
+    setBirthday(formattedDate);
+
+    e.target.value = formattedDate; // Cập nhật giá trị input
+
+    handleInputChange(e);
   };
 
   return (
@@ -126,8 +142,8 @@ const ProfileInfo = ({
                 id="birthday"
                 name="birthday"
                 type="date"
-                value={editedProfile?.birthday || ""}
-                onChange={handleInputChange}
+                value={birthday || ""}
+                onChange={handleDateChange}
               />
             ) : (
               <div className="p-2 border rounded-md bg-gray-50">
