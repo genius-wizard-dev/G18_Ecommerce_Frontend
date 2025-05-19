@@ -4,16 +4,20 @@ import addressReducer from "./slices/addressSlice";
 import cartReducer from "./slices/cartSlice";
 import locationReducer from "./slices/locationSlice";
 import profileReducer from "./slices/profileSlice";
+import productReducer from "./slices/productSlice";
+import discountReducer from "./slices/discountSlice";
 
 export const store = configureStore({
-  reducer: {
-    cart: cartReducer,
-    account: accountReducer,
-    profile: profileReducer,
-    address: addressReducer,
-    location: locationReducer,
-    // auth: authReducer,
-  },
+    reducer: {
+        discount: discountReducer,
+        cart: cartReducer,
+        account: accountReducer,
+        profile: profileReducer,
+        address: addressReducer,
+        location: locationReducer,
+        product: productReducer
+        // auth: authReducer,
+    }
 });
 
 export type RootState = ReturnType<typeof store.getState>;
