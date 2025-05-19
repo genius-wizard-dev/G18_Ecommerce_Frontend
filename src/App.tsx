@@ -15,6 +15,8 @@ import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import { getAccountInfo } from "./redux/thunks/account";
 import { getAllAddress } from "./redux/thunks/address";
 import { getProfile } from "./redux/thunks/profile";
+import ProductDetails from "./pages/product.details";
+import { getCart } from "./redux/thunks/cart";
 
 const LoadingComponent = () => (
   <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
@@ -28,7 +30,7 @@ const LoadingComponent = () => (
 );
 
 function App() {
-  const [isLogin, setIsLogin] = useState<boolean>(false);
+ const [isLogin, setIsLogin] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const { account, isLoading: isAccountLoading } = useAppSelector(
     (state) => state.account
@@ -36,6 +38,7 @@ function App() {
   const { profile, isLoading: isProfileLoading } = useAppSelector(
     (state) => state.profile
   );
+
   useEffect(() => {
     const token = getAccessToken();
     if (token) {
@@ -56,8 +59,7 @@ function App() {
       dispatch(getAllAddress(profile.id));
     }
   }, [dispatch, profile]);
-
-  return (
+return (
     <BrowserRouter>
       <Suspense fallback={<LoadingComponent />}>
         {isProfileLoading || isAccountLoading ? (
@@ -75,16 +77,16 @@ function App() {
               />
             </Route>
 
-            {/* Route với MainLayout bao quanh các route con */}
             <Route path="/" element={<MainLayout />}>
               <Route index element={<HomePage />} />
               <Route path="products" element={<Products />} />
+              <Route path="product/:id" element={<ProductDetails />} />
               <Route path="profile" element={<Profile />} />
               <Route path="cart" element={<CartPage />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="cart" element={<CartPage />} />
+
               <Route path="dashboard" element={<Dashboard />} />
-              {/* Các route con khác sẽ được thêm vào đây */}
-              {/* <Route path="/:page" element={<PageRender />} />
-                <Route path="/:page/:id" element={<PageRender />} /> */}
             </Route>
           </Routes>
         )}
