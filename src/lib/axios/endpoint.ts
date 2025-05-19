@@ -7,6 +7,10 @@ export const ENDPOINTS = {
     INTROSPECT: `/identity/auth/introspect`,
     MY_INFO: `/identity/users/my-info`,
     DELETE_ACCOUNT: (userId: string) => `/identity/users/${userId}`,
+    SEND_OTP_CHANGE_PASSWORD: (userId: string) =>
+      `/identity/auth/send-otp-change-password/${userId}`,
+    CHANGE_PASSWORD: (userId: string) =>
+      `/identity/auth/change-password/${userId}`,
   },
   PROFILE: {
     INFO: (userId: string) => `/profile/${userId}`,
@@ -25,16 +29,15 @@ export const ENDPOINTS = {
   },
   PRODUCT: {
     GET_ALL: (page?: number, limit?: number, category?: string) =>
-      `/api/products${
-        page || limit || category
-          ? `?${[
-              page ? `page=${page}` : "",
-              limit ? `limit=${limit}` : "",
-              category ? `category=${category}` : "",
-            ]
-              .filter(Boolean)
-              .join("&")}`
-          : ""
+      `/api/products${page || limit || category
+        ? `?${[
+          page ? `page=${page}` : "",
+          limit ? `limit=${limit}` : "",
+          category ? `category=${category}` : "",
+        ]
+          .filter(Boolean)
+          .join("&")}`
+        : ""
       }`,
     GET_BY_ID: (productId: string) => `/api/products/${productId}`,
   },
