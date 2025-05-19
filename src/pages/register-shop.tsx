@@ -1,40 +1,38 @@
-// components/RegisterShopCard.tsx
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Sparkles } from "lucide-react"
+"use client"
 
 export default function RegisterShop() {
-	return (
-		<div className="bg-gradient-to-br from-[#fff0dc] to-[#ffc8b6] flex items-center justify-center p-6">
-			<Card className="w-full max-w-md shadow-2xl backdrop-blur-sm bg-white/70 rounded-2xl border-none relative overflow-hidden">
-				<div className="absolute inset-0 bg-gradient-to-br from-pink-200 via-transparent to-yellow-100 opacity-30 animate-pulse" />
-				<CardContent className="relative z-10 p-8">
-					<div className="text-center mb-6">
-						<Sparkles className="w-10 h-10 mx-auto animate-bounce text-orange-500" />
-						<h2 className="text-2xl font-bold text-gray-800">Đăng ký cửa hàng của bạn</h2>
-						<p className="text-sm text-gray-500">Bắt đầu hành trình kinh doanh ngay hôm nay!</p>
-					</div>
-					<div className="space-y-4">
-						<div>
-							<Label htmlFor="shopName" className="text-gray-700 mb-3">Tên Shop</Label>
-							<Input
-								id="shopName"
-								placeholder="VD: Quán Trà Sữa Cute"
-								className="mt-1 bg-white/60 border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 rounded-lg shadow-sm"
-							/>
-						</div>
-						<Button
-							type="submit"
-							className="form-element w-full h-10 sm:h-12 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-medium rounded-lg transition-all duration-300 shadow-md hover:shadow-lg"
-						>
-							Đăng ký
-						</Button>
-					</div>
-					
-				</CardContent>
-			</Card>
-		</div>
-	)
+  return (
+    <div className="bg-white w-full py-20 px-4 flex justify-center relative">
+      <div className="relative w-full max-w-xl p-10 rounded-2xl bg-white border border-black/10 shadow-[0_0_40px_rgba(0,0,0,0.08)] hover:shadow-[0_0_160px_rgba(0,0,0,0.15)] transition-all duration-500 group scale-105 hover:scale-100">
+        {/* Vạch sáng góc */}
+        <div className="absolute top-0 left-0 w-10 h-10 bg-black group-hover:w-5 group-hover:h-5 transition-all duration-300 rounded-br-lg" />
+        <div className="absolute bottom-0 right-0 w-10 h-10 bg-black group-hover:w-5 group-hover:h-5 transition-all duration-300 rounded-tl-lg" />
+
+        <h2 className="text-3xl font-extrabold text-black text-center uppercase tracking-wider mb-8">
+          Đăng ký shop
+        </h2>
+
+        <form className="space-y-6">
+          <div>
+            <label htmlFor="shopName" className="block text-black font-semibold mb-2">
+              Tên Shop
+            </label>
+            <input
+              id="shopName"
+              type="text"
+              placeholder="VD: The Shadow Room"
+              className="w-full px-4 py-3 rounded-md bg-white border border-black/20 text-black placeholder-black/40 focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full py-3 bg-black text-white font-bold rounded-md tracking-wide uppercase hover:bg-white hover:text-black border hover:border-black transition-all duration-300"
+          >
+            Đăng ký shop
+          </button>
+        </form>
+      </div>
+    </div>
+  )
 }
