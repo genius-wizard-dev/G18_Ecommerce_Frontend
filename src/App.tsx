@@ -36,6 +36,7 @@ function App() {
   const { profile, isLoading: isProfileLoading } = useAppSelector(
     (state) => state.profile
   );
+
   useEffect(() => {
     const token = getAccessToken();
     if (token) {
@@ -75,16 +76,15 @@ function App() {
               />
             </Route>
 
-            {/* Route với MainLayout bao quanh các route con */}
             <Route path="/" element={<MainLayout />}>
               <Route index element={<HomePage />} />
               <Route path="products" element={<Products />} />
+              {/* <Route path="product/:id" element={<ProductDetails />} /> */}
               <Route path="profile" element={<Profile />} />
               <Route path="cart" element={<CartPage />} />
+
+
               <Route path="dashboard" element={<Dashboard />} />
-              {/* Các route con khác sẽ được thêm vào đây */}
-              {/* <Route path="/:page" element={<PageRender />} />
-                <Route path="/:page/:id" element={<PageRender />} /> */}
             </Route>
           </Routes>
         )}

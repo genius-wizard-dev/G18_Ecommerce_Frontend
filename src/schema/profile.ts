@@ -3,13 +3,12 @@ import { z } from "zod";
 const UUIDSchema = z.string().uuid();
 
 export const ProfileSchema = z.object({
-  id: z.string(),
-  userId: z.string(),
-  fullName: z.string(),
+  id: UUIDSchema,
+  userId: UUIDSchema,
   email: z.string().email(),
-  phoneNumber: z.string().nullable(),
-  birthday: z.string().nullable(),
-  avatar: z.string().nullable(),
+  phoneNumber: z.string(),
+  fullName: z.string(),
+  shopId: UUIDSchema,
   isShop: z.boolean(),
 });
 

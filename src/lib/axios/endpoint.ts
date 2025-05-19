@@ -11,6 +11,7 @@ export const ENDPOINTS = {
   PROFILE: {
     INFO: (userId: string) => `/profile/${userId}`,
     REGISTER_SHOP: (profileId: string) => `/profile/register-shop/${profileId}`,
+    CHECK_SHOP: (userId: string) => `/profile/check-shop/${userId}`,
   },
   ADDRESS: {
     CREATE: (profileId: string) => `/profile/address/create/${profileId}`,

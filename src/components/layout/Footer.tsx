@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-900 text-white pt-12 pb-6">
+    <footer className="bg-gray-900 text-white pt-10">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           <div>
@@ -223,41 +223,6 @@ export default function Footer() {
             </ul>
             <div className="mt-6">
               <h4 className="font-semibold mb-2">Phương thức thanh toán</h4>
-            </div>
-          </div>
-        </div>
-        <div className="border-t border-gray-800 pt-6 mt-6">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400 text-sm">
-              © 2023 ShopTech. Tất cả các quyền được bảo lưu.
-            </p>
-            <div className="mt-4 md:mt-0">
-              <ul className="flex gap-4 text-sm text-gray-400">
-                <li>
-                  <Link
-                    to="/terms"
-                    className="hover:text-white transition-colors"
-                  >
-                    Điều khoản sử dụng
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/privacy"
-                    className="hover:text-white transition-colors"
-                  >
-                    Chính sách bảo mật
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/sitemap"
-                    className="hover:text-white transition-colors"
-                  >
-                    Sơ đồ trang
-                  </Link>
-                </li>
-              </ul>
             </div>
           </div>
         </div>
