@@ -9,6 +9,13 @@ const VoucherCard = ({
     userId: string;
     handleApplyDiscount: (discountId: string) => void;
 }) => {
+    const occurences = discount.used_user_list.reduce((occurences, id) => {
+        if (userId === id) return ++occurences;
+        return occurences;
+    }, 0);
+
+    const isAvailableDiscount = occurences < discount.quantity_per_user;
+
     return (
         <div className="bg-white rounded-xl shadow-md flex items-stretch border border-gray-300 border-l-10 border-l-blue-600 w-[500px] mb-4">
             <div className="border-r border-r-gray-300 p-3 flex flex-col justify-center">
@@ -20,10 +27,7 @@ const VoucherCard = ({
 
             <div className="flex flex-col gap-0.5 p-3 px-4 flex-1">
                 <h3 className="text-lg font-semibold">{`${discount.name}`}</h3>
-                <p>{`Số lần dùng: ${discount.used_user_list.reduce((occurences, id) => {
-                    if (userId === id) return ++occurences;
-                    return occurences;
-                }, 0)}/${discount.quantity_per_user}`}</p>
+                <p>{`Số lần dùng: ${occurences}/${discount.quantity_per_user}`}</p>
 
                 <p className="text-sm text-gray-400">{`Ngày hết hạn: ${new Date(
                     discount.expiry_time
@@ -32,8 +36,12 @@ const VoucherCard = ({
 
             <div className="flex justify-center items-center p-3 px-5">
                 <button
-                    className="h-10 w-26 rounded-sm flex justify-center items-center bg-blue-600 text-white font-semibold cursor-pointer active:scale-95"
-                    onClick={() => handleApplyDiscount(discount._id)}
+                    className={`h-10 w-26 rounded-sm flex justify-center items-center text-white font-semibold  ${
+                        !isAvailableDiscount
+                            ? "bg-blue-300 cursor-not-allowed"
+                            : "bg-blue-600 cursor-pointer active:scale-95"
+                    }`}
+                    onClick={() => (isAvailableDiscount ? handleApplyDiscount(discount._id) : null)}
                 >
                     Dùng
                 </button>

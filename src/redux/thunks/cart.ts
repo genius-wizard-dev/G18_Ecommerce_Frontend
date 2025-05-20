@@ -1,10 +1,10 @@
 import api from "@/lib/axios/api.service";
 import { ENDPOINTS } from "@/lib/axios/endpoint";
-import { CartItemResponse, CartResponse, DeleteCartItemInput, UpdateQuantityInput } from "@/schema/cart";
+import { CartItemInput, CartItemResponse, CartResponse, DeleteCartItemInput, UpdateQuantityInput } from "@/schema/cart";
 import { ProductInput, ProductResponse } from "@/schema/product";
 
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { CartItemBody, CartItemInput } from "../slices/cartSlice";
+import { CartItemBody } from "../slices/cartSlice";
 
 export const deleteCart = createAsyncThunk("cart/deleteCart", async (userId: string, { dispatch, rejectWithValue }) => {
     try {
@@ -77,12 +77,14 @@ export const getCart = createAsyncThunk("cart/getCart", async (userId: string, {
         const quantityParams: any = {};
         const cartIdParams: any = {};
         const finalPriceParams: any = {};
+        const appliedDiscountParams: any = {};
 
         const result = await Promise.allSettled(
             cartItems.map((cartItem: CartItemInput) => {
                 quantityParams[cartItem.productId] = cartItem?.quantity;
                 cartIdParams[cartItem.productId] = cartItem?.id;
                 finalPriceParams[cartItem.productId] = cartItem?.finalPrice;
+                appliedDiscountParams[cartItem.productId] = cartItem?.appliedDiscount;
                 return api.get<ProductResponse>(ENDPOINTS.PRODUCT.GET_BY_ID(cartItem?.productId));
             })
         );
@@ -104,7 +106,8 @@ export const getCart = createAsyncThunk("cart/getCart", async (userId: string, {
                             name: product.name,
                             price: finalPriceParams[product._id],
                             image: product.thumbnailImage,
-                            quantity: quantityParams[product._id]
+                            quantity: quantityParams[product._id],
+                            appliedDiscount: appliedDiscountParams[product._id]
                         }
                     ];
                 }

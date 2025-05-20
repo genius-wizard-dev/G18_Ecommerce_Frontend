@@ -5,14 +5,13 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Separator } from "../components/ui/separator";
-import { CartItem, selectCart, selectCartItems, selectCartTotal, updateQuantity } from "../redux/slices/cartSlice";
+import { CartItem, selectCart, selectCartTotal, updateQuantity } from "../redux/slices/cartSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { CartItemInput, DeleteCartItemInput, UpdateQuantityInput } from "@/schema/cart";
+import { DeleteCartItemInput, UpdateQuantityInput } from "@/schema/cart";
 import { changeProductQuantity, deleteCart, deleteCartItem } from "@/redux/thunks/cart";
 import { applyDiscount, getDiscountsByShop } from "@/redux/thunks/discount";
 import VoucherCard from "@/components/dicount/VoucherCard";
 import { ApplyDiscountInput, Discount } from "@/schema/discount";
-import { ProductInput } from "@/schema/product";
 
 const CartPage = () => {
     const { cartId, items } = useSelector(selectCart);
@@ -26,18 +25,24 @@ const CartPage = () => {
     const [isProcessing, setIsProcessing] = useState(false);
     const [appliedProductIdList, setAppliedProductIdList] = useState<string[]>([]);
     const [appliedProductList, setAppliedProductList] = useState<CartItem[]>([]);
+    const [shopList, setShopList] = useState<string[]>([]);
 
     const handleApplyDiscount = (discountId: string) => {
-        if (!discountId || !cartId || appliedProductIdList.length == 0) return;
+        if (!discountId || !cartId || appliedProductIdList.length == 0 || !profile) return;
 
-        const data: ApplyDiscountInput = {
+        const applyDiscountInput: ApplyDiscountInput = {
             discountId,
             cartId,
             productIdList: appliedProductIdList,
-            userId: ""
+            userId: profile.id
         };
 
-        dispatch(applyDiscount(data));
+        dispatch(
+            applyDiscount({
+                applyDiscountInput,
+                shopList
+            })
+        );
     };
 
     const handleSelectAppliedProduct = (productId: string) => {
@@ -73,6 +78,16 @@ const CartPage = () => {
 
     useEffect(() => {
         const shopIdList: string[] = Array.from(new Set(cartItems.map((cartItem) => cartItem.shopId)));
+
+        setShopList(shopIdList);
+
+        setAppliedProductIdList(
+            cartItems.reduce((arr: string[], cartItem: CartItem) => {
+                if (cartItem.appliedDiscount) return [...arr, cartItem.productId];
+                return arr;
+            }, [])
+        );
+
         dispatch(getDiscountsByShop(shopIdList));
     }, [JSON.stringify(cartItems)]);
 
@@ -176,12 +191,15 @@ const CartPage = () => {
                                         <div className="flex-grow">
                                             <h3 className="font-medium text-lg">{item.name}</h3>
                                             <p className="text-red-600 font-semibold mt-1">{formatPrice(item.price)}</p>
-                                            <div className="flex gap-1 items-center mt-2">
+                                            <div
+                                                className="flex gap-1 items-center mt-2 cursor-pointer"
+                                                onClick={() => handleSelectAppliedProduct(item.productId)}
+                                            >
                                                 <input
                                                     type="checkbox"
                                                     className="relative top-[1px]"
                                                     checked={appliedProductIdList.includes(item.productId)}
-                                                    onInput={() => handleSelectAppliedProduct(item.productId)}
+                                                    readOnly={true}
                                                 />
                                                 <span className="text-sm font-semibold">Áp mã giảm giá</span>
                                             </div>
@@ -279,6 +297,7 @@ const CartPage = () => {
                             if (cond1 || cond2 || appliedProductIdList.length === 0)
                                 return (
                                     <VoucherCard
+                                        key={discount._id}
                                         discount={discount}
                                         userId={profile.id}
                                         handleApplyDiscount={handleApplyDiscount}
