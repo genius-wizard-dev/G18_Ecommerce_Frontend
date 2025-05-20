@@ -198,7 +198,6 @@ export const updateProduct = createAsyncThunk(
                 shop_id: productInfo.shopId || "",
                 total_quantity: quantity,
               };
-
               await api.post(ENDPOINTS.INVENTORY.CREATE, inventoryData);
             }
           } catch (inventoryError) {

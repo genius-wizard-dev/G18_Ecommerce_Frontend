@@ -43,6 +43,7 @@ export const ENDPOINTS = {
       }`,
     GET_BY_ID: (productId: string) => `/api/products/${productId}`,
     GET_BY_SHOP: (shopId: string) => `/api/products?shopId=${shopId}`,
+    GET_BY_CATEGORY: (category: string) => `/api/products?category=${category}`,
     UPDATE: (productId: string) => `/api/products/${productId}`,
     // DELETE: (productId: string) => `/api/products/${productId}`,
   },
@@ -65,5 +66,8 @@ export const ENDPOINTS = {
       `/api/inventories/products/${productId}`,
     GET_BY_PRODUCT_ID: (productId: string) =>
       `/api/inventories/products/${productId}`,
+  },
+  AI: {
+    GENERATE_DESCRIPTION: "/api/ai/generate-description",
   },
 };

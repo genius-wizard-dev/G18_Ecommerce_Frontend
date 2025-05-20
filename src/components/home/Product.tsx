@@ -68,7 +68,7 @@ export const Product = () => {
   const { products } = useAppSelector((state) => state.product);
 
   useEffect(() => {
-    dispatch(getProducts({ limit: 30, page: 1 }));
+    dispatch(getProducts({ limit: 5, page: 1 }));
   }, []);
 
   return (

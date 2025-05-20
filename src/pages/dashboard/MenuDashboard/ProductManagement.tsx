@@ -156,7 +156,6 @@ const ProductManagement: React.FC = () => {
               quantity: productData.quantity,
             })
           );
-          // Không cần fetch lại toàn bộ danh sách sản phẩm vì Redux đã được cập nhật
         }
       } else {
         // Tạo sản phẩm mới
@@ -182,7 +181,7 @@ const ProductManagement: React.FC = () => {
               shopId: profile.shopId,
             })
           );
-          // Không cần fetch lại toàn bộ danh sách sản phẩm vì Redux đã được cập nhật
+          dispatch(resetProductForm());
         }
       }
     } catch (error) {

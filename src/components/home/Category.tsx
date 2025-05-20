@@ -9,19 +9,23 @@ interface CategoryCardProps {
 }
 const CategoryCard: FC<CategoryCardProps> = ({ id, name, image }) => {
   return (
-    <Link to={`/category/${id}`}>
+    <Link to={`/category/${id}`} className="block">
+      {" "}
       <div className="text-center h-full transition-all duration-300">
+        {" "}
         <div className="mb-3 rounded-lg overflow-hidden relative group bg-transparent hover:bg-orange-100/90 transition-colors duration-300 w-32 h-32 flex items-center justify-center mx-auto">
+          {" "}
           <div className="w-20 h-20 overflow-hidden">
+            {" "}
             <img
               src={image}
               alt={name}
               className="w-full h-full object-cover transform group-hover:rotate-3 group-hover:scale-105 transition-transform duration-300"
-            />
-          </div>
-        </div>
-        <h3 className="font-medium text-gray-900 text-sm">{name}</h3>
-      </div>
+            />{" "}
+          </div>{" "}
+        </div>{" "}
+        <h3 className="font-medium text-gray-900 text-sm">{name}</h3>{" "}
+      </div>{" "}
     </Link>
   );
 };

@@ -105,6 +105,28 @@ const shopManagerSlice = createSlice({
             ? { ...product, ...action.payload }
             : product
         );
+
+        // Cập nhật inventory trong state nếu có thông tin quantity
+        if (action.meta.arg.quantity !== undefined && action.payload._id) {
+          const productId = action.payload._id;
+          const productName =
+            action.payload.name ||
+            state.inventory[productId]?.product_name ||
+            "";
+
+          // Cập nhật hoặc tạo mới inventory trong state
+          state.inventory[productId] = {
+            ...state.inventory[productId],
+            product_id: productId,
+            product_name: productName,
+            total_quantity: action.meta.arg.quantity,
+            shop_id:
+              action.payload.shopId ||
+              state.inventory[productId]?.shop_id ||
+              "",
+          };
+        }
+
         // Reset form khi cập nhật sản phẩm thành công
         state.selectedProduct = null;
       }

@@ -27,6 +27,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import ProductAttributeFields from "./ProductAttributeFields";
 
 // Danh sách loại sản phẩm
@@ -91,6 +92,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const [description, setDescription] = useState<string>("");
   const [attributes, setAttributes] = useState<AttributeRecord>({});
   const [tags, setTags] = useState<string>("");
+  // Lưu trữ thuộc tính của sản phẩm đang chỉnh sửa
+  const [selectedProductAttributes, setSelectedProductAttributes] =
+    useState<AttributeRecord | null>(null);
 
   // States cho hình ảnh
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
@@ -100,11 +104,71 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
   // Reset thuộc tính khi thay đổi danh mục
   useEffect(() => {
-    // Chỉ reset attributes khi không phải đang edit sản phẩm
+    // Chỉ reset attributes khi không có sản phẩm được chọn
+    // hoặc khi lần đầu khởi tạo form
     if (!selectedProduct) {
       setAttributes({});
     }
   }, [category, selectedProduct]);
+
+  // Xử lý khi có selectedProduct được truyền vào
+  useEffect(() => {
+    if (selectedProduct) {
+      setName(selectedProduct.name);
+      setPrice(selectedProduct.price.toString());
+      // Quantity được truyền riêng từ inventory hoặc từ giá trị mặc định
+      setQuantity((selectedProduct as any).quantity?.toString() || "0");
+
+      // Tìm category từ enum
+      const categoryString =
+        Object.keys(ProductCategory).find(
+          (key) =>
+            ProductCategory[key as keyof typeof ProductCategory] ===
+            selectedProduct.category
+        ) || "";
+      setCategory(categoryString);
+
+      // Đặt lại description và tags
+      setDescription(selectedProduct.description || "");
+      setTags(selectedProduct.tags ? selectedProduct.tags.join(", ") : "");
+
+      // Lưu trữ thuộc tính của sản phẩm đang chỉnh sửa
+      if (selectedProduct.attribute) {
+        console.log("Loading attributes:", selectedProduct.attribute);
+        setSelectedProductAttributes(
+          selectedProduct.attribute as AttributeRecord
+        );
+        // Thiết lập thuộc tính ngay lập tức
+        setAttributes(selectedProduct.attribute as AttributeRecord);
+      } else {
+        setSelectedProductAttributes(null);
+        setAttributes({});
+      }
+
+      // Cập nhật các preview nếu có
+      if (selectedProduct.thumbnailImage) {
+        setThumbnailPreview(getImageUrl(selectedProduct.thumbnailImage));
+      }
+
+      if (selectedProduct.images && selectedProduct.images.length > 0) {
+        setImagePreview(selectedProduct.images.map((img) => getImageUrl(img)));
+      }
+    } else {
+      // Reset form khi không có selectedProduct
+      setName("");
+      setPrice("");
+      setQuantity("");
+      setCategory("");
+      setDescription("");
+      setAttributes({});
+      setSelectedProductAttributes(null);
+      setTags("");
+      setThumbnailFile(null);
+      setThumbnailPreview("");
+      setImageFiles([]);
+      setImagePreview([]);
+    }
+  }, [selectedProduct]);
 
   // Xử lý thumbnail image để preview
   const handleThumbnailUpload = (files: File[]) => {
@@ -196,62 +260,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
     // Không tự động reset form ở đây, sẽ reset khi thao tác thành công thông qua Redux
   };
 
-  // Xử lý khi có selectedProduct được truyền vào
-  useEffect(() => {
-    if (selectedProduct) {
-      setName(selectedProduct.name);
-      setPrice(selectedProduct.price.toString());
-      // Quantity được truyền riêng từ inventory hoặc từ giá trị mặc định
-      setQuantity((selectedProduct as any).quantity?.toString() || "0");
-
-      // Tìm category từ enum
-      const categoryString =
-        Object.keys(ProductCategory).find(
-          (key) =>
-            ProductCategory[key as keyof typeof ProductCategory] ===
-            selectedProduct.category
-        ) || "";
-      setCategory(categoryString);
-
-      // Đặt lại description và tags
-      setDescription(selectedProduct.description || "");
-      setTags(selectedProduct.tags ? selectedProduct.tags.join(", ") : "");
-
-      // Thiết lập thuộc tính
-      if (selectedProduct.attribute) {
-        console.log("Loading attributes:", selectedProduct.attribute);
-        // Đảm bảo attributes được cập nhật đúng
-        setTimeout(() => {
-          setAttributes(selectedProduct.attribute as AttributeRecord);
-        }, 0);
-      } else {
-        setAttributes({});
-      }
-
-      // Cập nhật các preview nếu có
-      if (selectedProduct.thumbnailImage) {
-        setThumbnailPreview(getImageUrl(selectedProduct.thumbnailImage));
-      }
-
-      if (selectedProduct.images && selectedProduct.images.length > 0) {
-        setImagePreview(selectedProduct.images.map((img) => getImageUrl(img)));
-      }
-    } else {
-      // Reset form khi không có selectedProduct
-      setName("");
-      setPrice("");
-      setQuantity("");
-      setCategory("");
-      setDescription("");
-      setAttributes({});
-      setTags("");
-      setThumbnailFile(null);
-      setThumbnailPreview("");
-      setImageFiles([]);
-      setImagePreview([]);
-    }
-  }, [selectedProduct]);
-
   // Reset form
   const resetForm = () => {
     setName("");
@@ -271,6 +279,42 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const cancelEdit = () => {
     resetForm();
     onCancel();
+  };
+
+  // Hàm handleGenerateDescription
+  const handleGenerateDescription = async (file: File): Promise<void> => {
+    try {
+      // Tạo FormData để gửi file
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const response = await fetch(
+        "http://localhost:8000/generate-description",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      if (data && data.description) {
+        setDescription(data.description);
+        toast.success("Đã tạo mô tả tự động thành công!");
+      } else {
+        toast.error("Không nhận được mô tả từ API");
+      }
+
+      // if (response && response.description) {
+      //   setDescription(response.description);
+      //   toast.success("Đã tạo mô tả tự động thành công!");
+      // } else {
+      //   toast.error("Không nhận được mô tả từ API");
+      // }
+    } catch (error) {
+      console.error("Lỗi khi gọi API tạo mô tả:", error);
+      toast.error("Không thể tạo mô tả tự động. Vui lòng thử lại sau.");
+    }
   };
 
   return (
@@ -317,8 +361,41 @@ const ProductForm: React.FC<ProductFormProps> = ({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="category">Loại sản phẩm</Label>
-                <Select value={category} onValueChange={setCategory}>
-                  <SelectTrigger className="bg-white">
+                <Select
+                  value={category}
+                  onValueChange={(value) => {
+                    // Nếu người dùng thay đổi danh mục, cần reset thuộc tính
+                    setCategory(value);
+                    // Reset attributes khi người dùng chủ động thay đổi danh mục
+                    if (selectedProduct) {
+                      // Tìm category từ enum
+                      const categoryString =
+                        Object.keys(ProductCategory).find(
+                          (key) =>
+                            ProductCategory[
+                              key as keyof typeof ProductCategory
+                            ] === selectedProduct.category
+                        ) || "";
+
+                      // Nếu người dùng thay đổi sang danh mục khác với danh mục ban đầu của sản phẩm
+                      // thì reset thuộc tính
+                      if (value !== categoryString) {
+                        setAttributes({});
+                        toast.info(
+                          "Đã reset thuộc tính do thay đổi danh mục sản phẩm"
+                        );
+                      }
+                    }
+                  }}
+                  disabled={selectedProduct !== null}
+                >
+                  <SelectTrigger
+                    className={`bg-white ${
+                      selectedProduct !== null
+                        ? "opacity-70 cursor-not-allowed"
+                        : ""
+                    }`}
+                  >
                     <SelectValue placeholder="Chọn loại sản phẩm" />
                   </SelectTrigger>
                   <SelectContent className="bg-white">
@@ -329,6 +406,11 @@ const ProductForm: React.FC<ProductFormProps> = ({
                     ))}
                   </SelectContent>
                 </Select>
+                {selectedProduct !== null && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Không thể thay đổi loại sản phẩm khi chỉnh sửa
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="price">Giá</Label>
@@ -373,6 +455,8 @@ const ProductForm: React.FC<ProductFormProps> = ({
                   onChange={setDescription}
                   maxLength={2000}
                   placeholder="Nhập mô tả chi tiết về sản phẩm (hỗ trợ Markdown)"
+                  thumbnailFile={thumbnailFile}
+                  onGenerateDescription={handleGenerateDescription}
                 />
               </div>
             </div>
