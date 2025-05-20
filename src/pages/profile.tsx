@@ -79,13 +79,13 @@ const ProfilePage = () => {
 
   // Xử lý cập nhật thông tin người dùng
   const handleUpdateProfile = async () => {
-    if (!editedProfile || !account?.userId) return;
+    if (!editedProfile || !account?.id) return;
 
     setIsUpdateLoading(true);
     try {
       await dispatch(
         updateProfile({
-          userId: account.userId,
+          userId: account.id,
           profileData: editedProfile,
         })
       ).unwrap();

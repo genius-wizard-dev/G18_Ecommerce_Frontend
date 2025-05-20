@@ -11,6 +11,7 @@ import {
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { AddressForm } from "./AddressForm";
+import { useState } from "react";
 
 interface ProfileInfoProps {
   profile: Profile | null;
@@ -40,6 +41,21 @@ const ProfileInfo = ({
     if (!dateString) return "N/A";
     const date = new Date(dateString);
     return new Intl.DateTimeFormat("vi-VN").format(date);
+  };
+
+  const [birthDay, setBirthday] = useState<string | null>(null);
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+
+    // Chuyển định dạng thành yyyy-mm-dd
+    const date = new Date(value);
+    const formattedDate = date.toISOString().split("T")[0];
+    setBirthday(formattedDate);
+
+    e.target.value = formattedDate; // Cập nhật giá trị input
+
+    handleInputChange(e);
   };
 
   return (
@@ -120,26 +136,26 @@ const ProfileInfo = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="birthday">Ngày sinh</Label>
+            <Label htmlFor="birthDay">Ngày sinh</Label>
             {isEditing ? (
               <Input
-                id="birthday"
-                name="birthday"
+                id="birthDay"
+                name="birthDay"
                 type="date"
-                value={editedProfile?.birthday || ""}
-                onChange={handleInputChange}
+                value={birthDay || ""}
+                onChange={handleDateChange}
               />
             ) : (
               <div className="p-2 border rounded-md bg-gray-50">
-                {profile?.birthday
-                  ? formatDate(profile.birthday)
+                {profile?.birthDay
+                  ? formatDate(profile.birthDay)
                   : "Chưa cập nhật"}
               </div>
             )}
           </div>
 
           <div className="space-y-2 md:col-span-2">
-            <AddressForm address={address} profileId={profile?.id} />
+            <AddressForm address={address} profileId={profile?.id || '' } />
           </div>
         </div>
       </CardContent>
