@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import MarkdownEditor from "@/components/ui/markdown-editor";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
@@ -10,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import api from "@/lib/axios/api.service";
 import { ENDPOINTS } from "@/lib/axios/endpoint";
 import { useAppSelector } from "@/redux/hooks";
@@ -22,12 +22,13 @@ import {
   ProductResponse,
   getAttributeSchemaForCategory,
 } from "@/schema/product";
+import "@/styles/markdown.css";
 import {
   CLOUDINARY_CONFIG,
-  getCloudinaryImageUrl,
   uploadMultipleToCloudinary,
   uploadToCloudinary,
 } from "@/utils/cloudinary.config";
+import { getImageUrl } from "@/utils/getImage";
 import FileUpload from "@/utils/upload.images.tsx";
 import {
   CheckCircle,
@@ -378,100 +379,7 @@ const ProductManagement: React.FC = () => {
 
       if (editId !== null) {
         // // Handle edit logic
-        // try {
-        //   // Lấy schema dành cho category này để đảm bảo đúng định dạng
-        //   const categoryEnum = category as keyof typeof ProductCategory;
-        //   const attributeSchema = getAttributeSchemaForCategory(
-        //     ProductCategory[categoryEnum]
-        //   );
-
-        //   // Tạo attribute từ schema với giá trị hiện tại
-        //   let productAttribute: any;
-
-        //   // Validate attribute nếu cần
-        //   if (attributeSchema) {
-        //     try {
-        //       // Kiểm tra xem attribute có đúng định dạng không
-        //       productAttribute = attributeSchema.parse(attributes);
-        //     } catch (error) {
-        //       console.error("Lỗi khi xác thực thuộc tính:", error);
-        //       // Nếu có lỗi, sử dụng attributes hiện tại không qua validation
-        //       productAttribute = attributes;
-        //     }
-        //   } else {
-        //     // Fallback nếu không tìm thấy schema
-        //     productAttribute = attributes;
-        //   }
-
-        //   const updatedProduct: Partial<ProductInput> = {
-        //     name,
-        //     price: parsedPrice,
-        //     description: description || "",
-        //     category: ProductCategory[categoryEnum],
-        //     // @ts-ignore - Giả sử đã được validate
-        //     attribute: productAttribute,
-        //     tags: productTags,
-        //     isActive: true,
-        //   };
-
-        //   // Cập nhật thumbnail nếu có upload mới
-        //   if (thumbnailPublicId) {
-        //     updatedProduct.thumbnailImage = thumbnailPublicId;
-        //   }
-
-        //   // Cập nhật images nếu có upload mới
-        //   if (imagePublicIds.length > 0) {
-        //     updatedProduct.images = imagePublicIds;
-        //   }
-
-        //   // Gửi yêu cầu cập nhật sản phẩm
-        //   if (editId) {
-        //     const response = await api.patch(
-        //       ENDPOINTS.PRODUCT.GET_BY_ID(editId),
-        //       updatedProduct
-        //     );
-
-        //     if (response && response.success) {
-        //       // Cập nhật inventory
-        //       try {
-        //         const inventoryResponse = await api.get(
-        //           ENDPOINTS.INVENTORY.GET_BY_PRODUCT_ID(editId)
-        //         );
-        //         if (
-        //           inventoryResponse &&
-        //           inventoryResponse.data &&
-        //           inventoryResponse.data.inventories &&
-        //           inventoryResponse.data.inventories.length > 0
-        //         ) {
-        //           const inventoryId = inventoryResponse.data.inventories[0]._id;
-        //           const inventoryData = {
-        //             total_quantity: Number(quantity),
-        //             product_name: name,
-        //           };
-        //           await api.patch(
-        //             `/api/inventories/${inventoryId}`,
-        //             inventoryData
-        //           );
-        //         }
-        //       } catch (error) {
-        //         console.error("Lỗi khi cập nhật inventory:", error);
-        //       }
-
-        //       // Cập nhật danh sách sản phẩm
-        //       setProducts(
-        //         products.map((p) =>
-        //           p._id === editId ? { ...p, ...updatedProduct } : p
-        //         )
-        //       );
-        //       toast.success("Sản phẩm đã được cập nhật thành công");
-        //     } else {
-        //       toast.error("Không thể cập nhật sản phẩm. Vui lòng thử lại sau.");
-        //     }
-        //   }
-        // } catch (error) {
-        //   console.error("Lỗi khi cập nhật sản phẩm:", error);
-        //   toast.error("Không thể cập nhật sản phẩm. Vui lòng thử lại sau.");
-        // }
+        // // ... existing edit logic ...
         setEditId(null);
       } else {
         // Lấy schema dành cho category này để đảm bảo đúng định dạng
@@ -668,18 +576,6 @@ const ProductManagement: React.FC = () => {
   };
 
   // Hàm lấy URL hình ảnh Cloudinary
-  const getImageUrl = (publicId: string) => {
-    // Kiểm tra nếu publicId đã có http hoặc https thì trả về nguyên bản
-    if (
-      !publicId ||
-      publicId.startsWith("http://") ||
-      publicId.startsWith("https://")
-    ) {
-      return publicId;
-    }
-    // Nếu không có http/https thì mới thêm vào
-    return getCloudinaryImageUrl(CLOUDINARY_CONFIG.cloudName, publicId);
-  };
 
   // Hiển thị từng sản phẩm trong danh sách
   const renderProductItem = (product: ProductInput) => (
@@ -849,12 +745,11 @@ const ProductManagement: React.FC = () => {
               </div>
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="description">Mô tả sản phẩm</Label>
-                <Textarea
-                  id="description"
+                <MarkdownEditor
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={4}
-                  placeholder="Nhập mô tả chi tiết về sản phẩm"
+                  onChange={setDescription}
+                  maxLength={2000}
+                  placeholder="Nhập mô tả chi tiết về sản phẩm (hỗ trợ Markdown)"
                 />
               </div>
             </div>
