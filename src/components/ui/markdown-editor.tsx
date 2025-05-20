@@ -1,7 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import "@/styles/markdown.css";
-import { AlertTriangle, Eye, FileText, Pencil, Upload } from "lucide-react";
+import {
+  AlertTriangle,
+  Eye,
+  FileText,
+  Pencil,
+  Upload,
+  Wand2,
+} from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -34,6 +41,8 @@ interface MarkdownEditorProps {
   label?: React.ReactNode;
   className?: string;
   readOnly?: boolean;
+  thumbnailFile?: File | null;
+  onGenerateDescription?: (file: File) => Promise<void>;
 }
 
 const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
@@ -47,10 +56,13 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   label,
   className = "",
   readOnly = false,
+  thumbnailFile,
+  onGenerateDescription,
 }) => {
   const [isPreview, setIsPreview] = useState<boolean>(false);
   const [charactersCount, setCharactersCount] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
   // Cập nhật số ký tự và kiểm tra chế độ xem trước
   useEffect(() => {
@@ -113,6 +125,29 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   // Sử dụng mẫu
   const useTemplate = () => {
     onChange(exampleTemplate);
+  };
+
+  // Xử lý tạo mô tả tự động
+  const handleGenerateDescription = async () => {
+    if (!thumbnailFile) {
+      toast.error("Vui lòng tải lên hình ảnh đại diện trước");
+      return;
+    }
+
+    if (!onGenerateDescription) {
+      toast.error("Chức năng tạo mô tả chưa được cấu hình");
+      return;
+    }
+
+    try {
+      setIsGenerating(true);
+      await onGenerateDescription(thumbnailFile);
+    } catch (error) {
+      console.error("Lỗi khi tạo mô tả:", error);
+      toast.error("Không thể tạo mô tả tự động. Vui lòng thử lại sau.");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   // Xử lý chuỗi Markdown để hiển thị đúng
@@ -235,7 +270,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
 
               {/* Các công cụ hỗ trợ */}
               <div className="flex flex-col space-y-2 text-xs text-gray-500">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <Button
                     type="button"
                     variant="outline"
@@ -256,6 +291,28 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                     <Upload className="h-3 w-3" />
                     Tải file Markdown
                   </Button>
+                  {onGenerateDescription && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleGenerateDescription}
+                      disabled={isGenerating || !thumbnailFile}
+                      className="flex items-center gap-1 text-black"
+                    >
+                      {isGenerating ? (
+                        <>
+                          <div className="h-3 w-3 border-2 border-black border-t-transparent rounded-full animate-spin mr-1" />
+                          Đang tạo mô tả...
+                        </>
+                      ) : (
+                        <>
+                          <Wand2 className="h-3 w-3" />
+                          Tạo mô tả tự động
+                        </>
+                      )}
+                    </Button>
+                  )}
                   {/* Input file ẩn */}
                   <input
                     type="file"
