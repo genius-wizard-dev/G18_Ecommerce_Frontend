@@ -43,6 +43,8 @@ export const ENDPOINTS = {
       }`,
     GET_BY_ID: (productId: string) => `/api/products/${productId}`,
     GET_BY_SHOP: (shopId: string) => `/api/products?shopId=${shopId}`,
+    UPDATE: (productId: string) => `/api/products/${productId}`,
+    // DELETE: (productId: string) => `/api/products/${productId}`,
   },
   CART: {
     GET_CART: (userId: string) => `/api/carts/users/${userId}`,
@@ -59,7 +61,9 @@ export const ENDPOINTS = {
   },
   INVENTORY: {
     CREATE: "/api/inventories",
+    UPDATE_BY_PRODUCT_ID: (productId: string) =>
+      `/api/inventories/products/${productId}`,
     GET_BY_PRODUCT_ID: (productId: string) =>
-      `/api/inventories?product_id=${productId}`,
+      `/api/inventories/products/${productId}`,
   },
 };
