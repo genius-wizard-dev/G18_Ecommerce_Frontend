@@ -33,7 +33,10 @@ export const getDiscountsByShop = createAsyncThunk(
 
 export const applyDiscount = createAsyncThunk(
     "cart/applyDiscount",
-    async (applyDiscountInput: ApplyDiscountInput, { dispatch, rejectWithValue }) => {
+    async (
+        { applyDiscountInput, shopList }: { applyDiscountInput: ApplyDiscountInput; shopList: string[] },
+        { dispatch, rejectWithValue }
+    ) => {
         try {
             const { userId, discountId, cartId, productIdList } = applyDiscountInput;
             const res = await api.post<DicountResponse>(ENDPOINTS.DISCOUNT.APPLY_DISCOUNT, {
@@ -42,9 +45,8 @@ export const applyDiscount = createAsyncThunk(
                 productIdList
             });
 
-            console.log(res);
-
             dispatch(getCart(userId));
+            dispatch(getDiscountsByShop(shopList));
 
             return res;
         } catch (error: any) {
