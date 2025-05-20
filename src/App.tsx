@@ -3,21 +3,22 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
 import AuthLayout from "./components/layout/AuthLayout";
 import MainLayout from "./components/layout/MainLayout";
+import NotFound from "./components/ui/NotFound";
 import { getAccessToken } from "./lib/storage";
 import CartPage from "./pages/cart";
 import Dashboard from "./pages/dashboard/dashboard";
 import HomePage from "./pages/home";
 import Login from "./pages/login";
 import ProductDetails from "./pages/product.details";
-import Products from "./pages/products";
+import ProductCategoryPage from "./pages/products.category";
 import Profile from "./pages/profile";
 import Register from "./pages/register";
+import RegisterShop from "./pages/register-shop";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import { getAccountInfo } from "./redux/thunks/account";
 import { getAllAddress } from "./redux/thunks/address";
 import { getCart } from "./redux/thunks/cart";
 import { getProfile } from "./redux/thunks/profile";
-import RegisterShop from "./pages/register-shop";
 
 const LoadingComponent = () => (
   <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
@@ -81,13 +82,24 @@ function App() {
 
             <Route path="/" element={<MainLayout />}>
               <Route index element={<HomePage />} />
-              <Route path="products" element={<Products />} />
               <Route path="product/:id" element={<ProductDetails />} />
+              <Route
+                path="category/:categoryId"
+                element={<ProductCategoryPage />}
+              />
               <Route path="profile" element={<Profile />} />
               <Route path="cart" element={<CartPage />} />
               <Route path="dashboard" element={<Dashboard />} />
-              <Route path="register-shop" element={<RegisterShop/>}/>
+              <Route path="register-shop" element={<RegisterShop />} />
+              <Route
+                path="*"
+                element={
+                  <NotFound message="Trang bạn đang tìm kiếm không tồn tại" />
+                }
+              />
             </Route>
+
+            {/* Xử lý trang không tồn tại */}
           </Routes>
         )}
       </Suspense>
