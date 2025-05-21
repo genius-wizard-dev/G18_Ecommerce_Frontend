@@ -147,7 +147,7 @@ const ProductCategoryPage = () => {
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Sắp xếp" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white">
             <SelectItem value="newest">Mới nhất</SelectItem>
             <SelectItem value="price-asc">Giá tăng dần</SelectItem>
             <SelectItem value="price-desc">Giá giảm dần</SelectItem>

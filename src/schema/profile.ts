@@ -9,6 +9,7 @@ export const ProfileSchema = z.object({
   phoneNumber: z.string(),
   fullName: z.string(),
   shopId: UUIDSchema,
+  shopName: z.string(),
   isShop: z.boolean(),
   birthDay: z.any(),
 });
