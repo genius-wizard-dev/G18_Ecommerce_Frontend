@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import { Link } from "react-router-dom";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
 
@@ -339,10 +340,23 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
 export const MarkdownViewer: React.FC<{
   content: string;
   className?: string;
-}> = ({ content, className = "" }) => {
+  useRouterLinks?: boolean;
+}> = ({ content, className = "", useRouterLinks = false }) => {
   // Xử lý chuỗi Markdown để hiển thị đúng
   const formatMarkdownText = (text: string) => {
     return text.replace(/\\n/g, "\n");
+  };
+
+  // Kiểm tra xem URL có phải là đường dẫn nội bộ không
+  const isInternalLink = (href: string) => {
+    // Kiểm tra xem đường dẫn có bắt đầu bằng / hoặc không chứa http/https
+    return (
+      href.startsWith("/") ||
+      (!href.startsWith("http://") &&
+        !href.startsWith("https://") &&
+        !href.startsWith("mailto:") &&
+        !href.startsWith("tel:"))
+    );
   };
 
   return (
@@ -367,9 +381,28 @@ export const MarkdownViewer: React.FC<{
             <ol className="list-decimal ml-5 mb-4" {...props} />
           ),
           li: ({ node, ...props }) => <li className="mb-1" {...props} />,
-          a: ({ node, ...props }) => (
-            <a className="text-blue-500 underline" {...props} />
-          ),
+          a: ({ node, href, children, ...props }) => {
+            if (useRouterLinks && href && isInternalLink(href)) {
+              return (
+                <Link to={href} className="text-blue-500 underline" {...props}>
+                  {children}
+                </Link>
+              );
+            }
+            return (
+              <a
+                href={href}
+                className="text-blue-500 underline"
+                target={href?.startsWith("http") ? "_blank" : undefined}
+                rel={
+                  href?.startsWith("http") ? "noopener noreferrer" : undefined
+                }
+                {...props}
+              >
+                {children}
+              </a>
+            );
+          },
           blockquote: ({ node, ...props }) => (
             <blockquote
               className="border-l-4 border-gray-200 pl-4 italic my-4"
