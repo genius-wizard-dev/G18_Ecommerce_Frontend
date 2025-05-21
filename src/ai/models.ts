@@ -2,10 +2,19 @@ import { PRODUCT_CATEGORIES } from "@/components/shop/ProductForm";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateObject, generateText } from "ai";
 import { z } from "zod";
-import { fetchProductByCategory, getTopOrder } from "./tools";
+import { addProductToCart, fetchProductByCategory, getTopOrder } from "./tools";
+
+// Định nghĩa kiểu dữ liệu cho lịch sử tin nhắn
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+  toolsData?: any; // Lưu dữ liệu từ công cụ như danh sách sản phẩm, đơn hàng...
+}
 
 export class AIService {
   private model;
+  private readonly CHAT_HISTORY_KEY = "g18_chat_history";
+  private readonly MAX_HISTORY_MESSAGES = 3;
 
   constructor(apiKey = import.meta.env.VITE_GOOGLE_GENERATIVE_AI_API_KEY) {
     const googleAI = createGoogleGenerativeAI({
@@ -16,22 +25,78 @@ export class AIService {
   }
 
   /**
+   * Lấy lịch sử chat từ localStorage
+   */
+  private getChatHistory(): ChatMessage[] {
+    try {
+      const history = localStorage.getItem(this.CHAT_HISTORY_KEY);
+      return history ? JSON.parse(history) : [];
+    } catch (error) {
+      console.error("Lỗi khi đọc lịch sử chat:", error);
+      return [];
+    }
+  }
+
+  /**
+   * Lưu tin nhắn vào lịch sử chat
+   */
+  private saveChatMessage(message: ChatMessage) {
+    try {
+      let history = this.getChatHistory();
+      history.push(message);
+
+      // Giới hạn số lượng tin nhắn lưu trữ
+      if (history.length > this.MAX_HISTORY_MESSAGES * 2) {
+        // Nhân 2 vì mỗi tương tác có 2 tin nhắn (user + assistant)
+        history = history.slice(-this.MAX_HISTORY_MESSAGES * 2);
+      }
+
+      localStorage.setItem(this.CHAT_HISTORY_KEY, JSON.stringify(history));
+    } catch (error) {
+      console.error("Lỗi khi lưu tin nhắn:", error);
+    }
+  }
+
+  clearChatHistory() {
+    localStorage.removeItem(this.CHAT_HISTORY_KEY);
+  }
+
+  /**
    * Tạo văn bản dựa trên prompt
    * @param prompt Câu lệnh đầu vào
-   * @returns Văn bản được tạo ra
+   * @returns Văn bản được tạo ra và dữ liệu từ công cụ
    */
-  async generateText(prompt: string): Promise<string> {
+  async generateText(prompt: string, userId: string) {
     try {
-      const { text } = await generateText({
+      let toolsData = null;
+
+      // Lấy lịch sử chat để thêm vào context
+      const chatHistory = this.getChatHistory();
+
+      // Tạo các tin nhắn lịch sử để thêm vào context
+      const historyMessages = chatHistory.map((msg) => ({
+        role: msg.role,
+        content: msg.content,
+        // Thêm dữ liệu công cụ vào nội dung nếu có
+        ...(msg.toolsData
+          ? {
+              toolsData: JSON.stringify(msg.toolsData),
+            }
+          : {}),
+      }));
+
+      const { text, steps } = await generateText({
         model: this.model,
         tools: {
           fetchProductByCategory,
           getTopOrder,
+          addProductToCart,
         },
         messages: [
           {
             role: "system",
-            content: `Bạn là AI G18, trợ lý thông minh trong hệ thống thương mại điện tử G18. Bạn có thể thực hiện nhiều tác vụ khác nhau liên quan đến sản phẩm, giỏ hàng, hóa đơn và thông tin mua sắm. Hãy phản hồi linh hoạt tùy theo ngữ cảnh yêu cầu của người dùng.
+            content: `
+            Bạn là AI G18, trợ lý thông minh trong hệ thống thương mại điện tử G18. Bạn có thể thực hiện nhiều tác vụ khác nhau liên quan đến sản phẩm, giỏ hàng, hóa đơn và thông tin mua sắm. Hãy phản hồi linh hoạt tùy theo ngữ cảnh yêu cầu của người dùng.
 
           Nguyên tắc phản hồi:
           - Nếu được hỏi bạn là AI gì, hãy trả lời: "Tôi là AI G18, trợ lý AI của G18. Tôi có thể giúp gì cho bạn hôm nay?"
@@ -50,15 +115,63 @@ export class AIService {
               (category) => `${category.label} => ${category.value}`
             ).join(", ")}
 
+          - Nếu người dùng muốn thêm sản phẩm vào giỏ hàng sau khi bạn đã liệt kê danh sách sản phẩm:
+            • Phân tích tin nhắn trước đó để tìm ID sản phẩm mà người dùng muốn thêm.
+            • Sử dụng tool addProductToCart với ID sản phẩm đã xác định và số lượng người dùng yêu cầu (mặc định là 1).
+            • Thông báo kết quả thêm sản phẩm vào giỏ hàng một cách rõ ràng.
+
+          - QUAN TRỌNG: Khi người dùng yêu cầu thêm sản phẩm vào giỏ hàng, hãy kiểm tra dữ liệu toolsData trong lịch sử chat để tìm ID sản phẩm.
+            • Nếu có nhiều sản phẩm, hãy hỏi người dùng muốn thêm sản phẩm nào.
+            • Nếu người dùng đề cập đến tên sản phẩm, hãy tìm ID tương ứng trong dữ liệu lịch sử.
+            • Luôn sử dụng ID chính xác khi gọi tool addProductToCart.
+
+          Thông tin người dùng hiện tại: userId=${userId}
+
           Luôn trả lời bằng tiếng Việt, trình bày rõ ràng, hấp dẫn, dùng markdown nếu phù hợp, và sử dụng emoji để tăng tính thân thiện nếu cần.
           `,
           },
+          // Thêm lịch sử chat vào trước tin nhắn hiện tại
+          ...historyMessages,
           {
             role: "user",
             content: prompt,
           },
         ],
         maxSteps: 5,
+      });
+
+      // Lưu tin nhắn người dùng
+      this.saveChatMessage({
+        role: "user",
+        content: prompt,
+      });
+
+      // Chỉ lưu kết quả và tên công cụ từ các bước
+      const allToolsData = steps
+        .filter(
+          (step) =>
+            step.toolCalls && step.toolCalls.length > 0 && step.toolResults
+        )
+        .map((step) => {
+          if (step.toolCalls && step.toolCalls.length > 0 && step.toolResults) {
+            return {
+              toolName: step.toolCalls[0].toolName,
+              result: step.toolResults[0].result,
+            };
+          }
+          return null;
+        })
+        .filter((data) => data !== null);
+
+      if (allToolsData.length > 0) {
+        toolsData = allToolsData.length === 1 ? allToolsData[0] : allToolsData;
+      }
+
+      // Lưu phản hồi của AI
+      this.saveChatMessage({
+        role: "assistant",
+        content: text,
+        toolsData: toolsData,
       });
 
       return text;
@@ -70,7 +183,6 @@ export class AIService {
 
   async checkProduct(file: File) {
     try {
-      // Chuyển đổi File thành dữ liệu base64
       const imageBuffer = await file.arrayBuffer();
       const base64Image = btoa(
         new Uint8Array(imageBuffer).reduce(

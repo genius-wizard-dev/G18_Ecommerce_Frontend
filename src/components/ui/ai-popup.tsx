@@ -1,10 +1,9 @@
 import { aiService } from "@/ai";
 import { cn } from "@/lib/utils";
-import { RootState } from "@/redux/store";
+import { useAppSelector } from "@/redux/hooks";
 import { gsap } from "gsap";
 import { ArrowUp, Smile, X } from "lucide-react";
 import * as React from "react";
-import { useSelector } from "react-redux";
 import { Button } from "./button";
 import { Card } from "./card";
 import { Input } from "./input";
@@ -36,8 +35,8 @@ export function AIPopup({ className }: AIPopupProps) {
   const popupRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const typingAnimationRef = React.useRef<gsap.core.Tween | null>(null);
-  const { isAuthenticated } = useSelector((state: RootState) => state.account);
-
+  const { isAuthenticated } = useAppSelector((state) => state.account);
+  const { profile } = useAppSelector((state) => state.profile);
   // Tạo ID duy nhất cho mỗi tin nhắn
   const generateId = () =>
     `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -72,18 +71,36 @@ export function AIPopup({ className }: AIPopupProps) {
         chatContainerRef.current.scrollTop =
           chatContainerRef.current.scrollHeight;
       }
-
-      // Xử lý API call trong một async function riêng biệt
+      if (!profile?.id) {
+        setMessages((prev) => {
+          const filteredMessages = prev.filter(
+            (msg) => msg.id !== typingIndicatorId
+          );
+          return [
+            ...filteredMessages,
+            {
+              id: generateId(),
+              type: "bot",
+              content:
+                "Xin lỗi, bạn cần đăng nhập để sử dụng tính năng này. Vui lòng đăng nhập để tiếp tục.",
+            },
+          ];
+        });
+        return;
+      }
       const fetchAIResponse = async () => {
         try {
-          const response = await aiService.generateText(currentInput);
+          const response = await aiService.generateText(
+            currentInput,
+            profile.id
+          );
 
           // Thêm delay nhỏ để tránh hiệu ứng chớp tắt
           setTimeout(() => {
             // Remove typing indicator and add bot response
-            setMessages((prev) => {
+            setMessages((prev: any) => {
               const filteredMessages = prev.filter(
-                (msg) => msg.id !== typingIndicatorId
+                (msg: any) => msg.id !== typingIndicatorId
               );
               return [
                 ...filteredMessages,
@@ -115,7 +132,6 @@ export function AIPopup({ className }: AIPopupProps) {
           }, 300);
         }
       };
-
       fetchAIResponse();
     }, 100);
   };
@@ -215,6 +231,7 @@ export function AIPopup({ className }: AIPopupProps) {
         !popupRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
+        aiService.clearChatHistory();
       }
     };
 
@@ -268,7 +285,10 @@ export function AIPopup({ className }: AIPopupProps) {
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 rounded-full hover:bg-gray-100"
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  setIsOpen(false);
+                  aiService.clearChatHistory();
+                }}
               >
                 <X className="h-5 w-5 text-gray-500" />
               </Button>
@@ -370,6 +390,7 @@ export function AIPopup({ className }: AIPopupProps) {
             hover:scale-110 hover:shadow-xl"
           onClick={() => {
             setIsOpen(true);
+            aiService.clearChatHistory();
             setMessages([
               {
                 id: "welcome",
