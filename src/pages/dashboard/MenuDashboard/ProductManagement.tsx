@@ -21,6 +21,7 @@ import {
   updateProduct,
 } from "@/redux/thunks/shopManagerThunk";
 import "@/styles/markdown.css";
+import { assert } from "console";
 import { useEffect, useMemo } from "react";
 import { toast } from "sonner";
 
@@ -214,7 +215,8 @@ const ProductManagement: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await dispatch(deleteProduct(id));
+      if (profile?.shopId) 
+        await dispatch(deleteProduct({ id, shopId: profile?.shopId }));
       // Không cần fetch lại toàn bộ danh sách sản phẩm vì Redux đã được cập nhật
     } catch (error) {
       console.error("Lỗi khi xóa sản phẩm:", error);

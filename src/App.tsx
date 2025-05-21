@@ -93,7 +93,7 @@ function App() {
               <Route path="cart" element={<CartPage />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="register-shop" element={<RegisterShop />} />
-              <Route path="brand-shop" element={<BrandShop />} />
+              <Route path="brand-shop/:shopId" element={<BrandShop />} />
               <Route path="stats-shop" element={<ProductStats />} />
               <Route
                 path="*"

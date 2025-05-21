@@ -13,14 +13,21 @@ class ApiServiceImpl implements ApiService {
   ): Promise<T> {
     try {
       console.log(`📤 Making ${method} request to ${uri}`, { data });
-
+  
+      const token = localStorage.getItem('access_token');
+      
+      const defaultHeaders = {
+        ...headers,
+        ...(token && { Authorization: `Bearer ${token}` })
+      };
+  
       const response = await axiosInstance.request<T>({
         method,
         url: uri,
         data,
-        headers,
+        headers: defaultHeaders,
       });
-
+  
       return response.data;
     } catch (error) {
       console.error(`❌ Error in ${method} request to ${uri}:`, error);
