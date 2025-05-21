@@ -43,9 +43,9 @@ export const ENDPOINTS = {
       }`,
     GET_BY_ID: (productId: string) => `/api/products/${productId}`,
     GET_BY_SHOP: (shopId: string) => `/api/products?shopId=${shopId}`,
-    GET_BY_CATEGORY: (category: string) => `/api/products?category=${category}`,
+    GET_BY_CATEGORY: (category: string, limit?: number) =>
+      `/api/products?category=${category}${limit ? `&limit=${limit}` : ""}`,
     UPDATE: (productId: string) => `/api/products/${productId}`,
-    // DELETE: (productId: string) => `/api/products/${productId}`,
   },
   CART: {
     GET_CART: (userId: string) => `/api/carts/users/${userId}`,
@@ -69,5 +69,12 @@ export const ENDPOINTS = {
   },
   AI: {
     GENERATE_DESCRIPTION: "/api/ai/generate-description",
+  },
+  ORDER: {
+    GET_ORDER_BY_ORDER_NUMBER: (orderNumber: string) =>
+      `/api/orders/${orderNumber}`,
+    GET_ORDERS_BY_USER: (userId: string) => `/api/orders/users/${userId}`,
+    GET_TOP_ORDER: (limit: number) =>
+      `/api/orders/top-orders${limit ? `?limit=${limit}` : ""}`,
   },
 };

@@ -319,7 +319,7 @@ export type ProductAttribute =
 
 // Schema chung cho sản phẩm
 export const ProductDataSchema = z.object({
-  _id: z.string().optional(),
+  _id: z.string(),
   name: z.string().min(1, "Tên sản phẩm không được để trống"),
   shopId: z.string(),
   description: z.string(),
