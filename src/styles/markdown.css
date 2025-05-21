@@ -4,29 +4,39 @@
   color: #333;
 }
 
+.markdown-preview h1,
+.markdown-preview h2,
+.markdown-preview h3,
+.markdown-preview h4,
+.markdown-preview h5,
+.markdown-preview h6 {
+  font-weight: 600;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
 .markdown-preview h1 {
-  font-size: 2rem;
-  margin-top: 1.5rem;
-  margin-bottom: 1rem;
-  font-weight: 700;
-  border-bottom: 1px solid #eaecef;
-  padding-bottom: 0.3rem;
+  font-size: 1.8em;
 }
 
 .markdown-preview h2 {
-  font-size: 1.5rem;
-  margin-top: 1.5rem;
-  margin-bottom: 1rem;
-  font-weight: 700;
-  border-bottom: 1px solid #eaecef;
-  padding-bottom: 0.3rem;
+  font-size: 1.5em;
 }
 
 .markdown-preview h3 {
-  font-size: 1.25rem;
-  margin-top: 1.5rem;
-  margin-bottom: 1rem;
-  font-weight: 600;
+  font-size: 1.3em;
+}
+
+.markdown-preview h4 {
+  font-size: 1.2em;
+}
+
+.markdown-preview h5 {
+  font-size: 1.1em;
+}
+
+.markdown-preview h6 {
+  font-size: 1em;
 }
 
 .markdown-preview strong {
@@ -37,10 +47,10 @@
   font-style: italic;
 }
 
-.markdown-preview ul, .markdown-preview ol {
-  padding-left: 2rem;
-  margin-top: 0.5rem;
-  margin-bottom: 1rem;
+.markdown-preview ul,
+.markdown-preview ol {
+  margin-left: 1.5em;
+  margin-bottom: 1em;
 }
 
 .markdown-preview ul {
@@ -52,7 +62,7 @@
 }
 
 .markdown-preview li {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.5em;
 }
 
 .markdown-preview a {
@@ -65,26 +75,25 @@
 }
 
 .markdown-preview blockquote {
-  border-left: 4px solid #dfe2e5;
-  padding-left: 1rem;
-  color: #6a737d;
-  margin: 1rem 0;
+  border-left: 4px solid #ddd;
+  padding-left: 1em;
+  color: #666;
+  margin-bottom: 1em;
 }
 
 .markdown-preview pre {
-  background-color: #f6f8fa;
-  border-radius: 3px;
-  padding: 1rem;
-  overflow: auto;
-  margin: 1rem 0;
+  background-color: #f1f1f1;
+  padding: 1em;
+  border-radius: 5px;
+  overflow-x: auto;
+  margin-bottom: 1em;
 }
 
 .markdown-preview code {
-  font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
-  background-color: rgba(27, 31, 35, 0.05);
-  border-radius: 3px;
+  background-color: #f1f1f1;
   padding: 0.2em 0.4em;
-  font-size: 85%;
+  border-radius: 3px;
+  font-family: monospace;
 }
 
 .markdown-preview hr {
@@ -119,11 +128,76 @@
 
 .markdown-preview img {
   max-width: 100%;
+  height: auto;
   box-sizing: content-box;
   margin: 1rem 0;
 }
 
 .markdown-preview p {
   margin-top: 0;
-  margin-bottom: 1rem;
+  margin-bottom: 1em;
+}
+
+/* Styles đặc biệt cho markdown trong chat */
+.markdown-chat {
+  font-size: 0.9rem;
+}
+
+.markdown-chat p {
+  margin-bottom: 0.75em;
+}
+
+.markdown-chat h1,
+.markdown-chat h2,
+.markdown-chat h3,
+.markdown-chat h4,
+.markdown-chat h5,
+.markdown-chat h6 {
+  margin-top: 0.75em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-chat h1 {
+  font-size: 1.3em;
+}
+
+.markdown-chat h2 {
+  font-size: 1.2em;
+}
+
+.markdown-chat h3 {
+  font-size: 1.1em;
+}
+
+.markdown-chat h4 {
+  font-size: 1em;
+}
+
+.markdown-chat h5 {
+  font-size: 0.9em;
+}
+
+.markdown-chat h6 {
+  font-size: 0.8em;
+}
+
+.markdown-chat ul,
+.markdown-chat ol {
+  margin-left: 1.2em;
+  margin-bottom: 0.75em;
+}
+
+.markdown-chat li {
+  margin-bottom: 0.3em;
+}
+
+.markdown-chat code {
+  font-size: 0.85em;
+}
+
+.markdown-chat p:last-child,
+.markdown-chat ul:last-child,
+.markdown-chat ol:last-child,
+.markdown-chat blockquote:last-child {
+  margin-bottom: 0;
 }
