@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { getCurrentProduct, getProducts } from "../thunks/product";
-import { ProductResponse } from "@/schema/product";
+import { ProductListResponse } from "@/schema/product";
 
 interface ProfileState {
     products: any;
@@ -35,7 +35,7 @@ const productSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(getProducts.fulfilled, (state, action: PayloadAction<ProductResponse>) => {
+            .addCase(getProducts.fulfilled, (state, action: PayloadAction<ProductListResponse>) => {
                 state.products = action.payload.data.products;
                 state.isLoading = false;
             })

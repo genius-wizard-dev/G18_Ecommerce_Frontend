@@ -1,7 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 import { CartResponse } from "@/schema/cart";
-import { addProductToCart, deleteCartItem, getCart } from "../thunks/cart";
+import { addProductToCart, deleteCartItem, getCart, placeOrder } from "../thunks/cart";
+import { CheckOrderInput, Order, OrderResponse } from "@/schema/order";
 
 // Định nghĩa interface cho item trong giỏ hàng
 export interface CartItem {
@@ -104,11 +105,30 @@ export const cartSlice = createSlice({
                     state.cartId = cartId;
                 }
             )
-            .addCase(addProductToCart.fulfilled, (state, action) => {
-                console.log("Add product to cart successful");
-            })
-            .addCase(deleteCartItem.fulfilled, (state, action) => {
-                console.log("Delete cart item successful");
+            .addCase(addProductToCart.fulfilled, () => {})
+            .addCase(deleteCartItem.fulfilled, () => {})
+            .addCase(placeOrder.fulfilled, (state, action: PayloadAction<OrderResponse>) => {
+                const order: Order = action.payload.data;
+                const orderList: string | null = localStorage.getItem("orderList");
+
+                if (orderList) {
+                    const newOrderList: CheckOrderInput[] = JSON.parse(orderList);
+                    newOrderList.push({
+                        orderNumber: order.orderNumber,
+                        timestamp: new Date().getTime()
+                    });
+                    localStorage.setItem("orderList", JSON.stringify(newOrderList));
+                } else {
+                    localStorage.setItem(
+                        "orderList",
+                        JSON.stringify([
+                            {
+                                orderNumber: order.orderNumber,
+                                timestamp: new Date().getTime()
+                            }
+                        ])
+                    );
+                }
             });
     }
 });

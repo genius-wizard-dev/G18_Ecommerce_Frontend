@@ -40,10 +40,15 @@ export const ENDPOINTS = {
         ADD_TO_CART: `/api/carts/cart-items`,
         UPDATE_QUANTITY: (cartId: string) => `/api/carts/cart-items/${cartId}`,
         DELETE_CART_ITEM: (cartItemId: string) => `/api/carts/carts-items/${cartItemId}`,
-        DELETE_CART: (userId: string) => `/api/carts/users/${userId}`
+        DELETE_CART: (userId: string) => `/api/carts/users/${userId}`,
+        PLACE_ORDER: "/api/carts/place-order"
     },
     DISCOUNT: {
         GET_DISCOUNTS_BY_SHOP: (shopId: string) => `/api/discounts?shopId=${shopId}`,
         APPLY_DISCOUNT: "/api/carts/apply-discount"
+    },
+    ORDER: {
+        GET_ORDER_BY_ORDER_NUMBER: (orderNumber: string) => `/api/orders/${orderNumber}`,
+        GET_ORDERS_BY_USER: (userId: string) => `/api/orders/users/${userId}`
     }
 };

@@ -5,27 +5,48 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Separator } from "../components/ui/separator";
-import { CartItem, selectCart, selectCartTotal, updateQuantity } from "../redux/slices/cartSlice";
+import { CartItem, selectCart, updateQuantity } from "../redux/slices/cartSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { DeleteCartItemInput, UpdateQuantityInput } from "@/schema/cart";
-import { changeProductQuantity, deleteCart, deleteCartItem } from "@/redux/thunks/cart";
+import { DeleteCartItemInput, PlaceOrderInput, UpdateQuantityInput } from "@/schema/cart";
+import { changeProductQuantity, deleteCart, deleteCartItem, getCart, placeOrder } from "@/redux/thunks/cart";
 import { applyDiscount, getDiscountsByShop } from "@/redux/thunks/discount";
 import VoucherCard from "@/components/dicount/VoucherCard";
 import { ApplyDiscountInput, Discount } from "@/schema/discount";
+import { generateTriggerValue } from "@/redux/slices/orderSlice";
 
 const CartPage = () => {
-    const { cartId, items } = useSelector(selectCart);
+    const { cartId, items, totalPrice } = useSelector(selectCart);
+    const { paymentUrl } = useAppSelector((state) => state.order);
     const cartItems = items;
     const { profile } = useAppSelector((state) => state.profile);
     const { discounts } = useAppSelector((state) => state.discount);
     const [currentCartItemData, setCurrentCartItemData] = useState<UpdateQuantityInput | null>(null);
-    const cartTotal = useSelector(selectCartTotal);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const [isProcessing, setIsProcessing] = useState(false);
     const [appliedProductIdList, setAppliedProductIdList] = useState<string[]>([]);
     const [appliedProductList, setAppliedProductList] = useState<CartItem[]>([]);
     const [shopList, setShopList] = useState<string[]>([]);
+    const paymentMethods = ["VNPAY", "PAYPAL", "Tiền Mặt"];
+    const [paymentMethod, setPaymentMethod] = useState<string>(paymentMethods[0]);
+    const [totalCartPrice, setTotalCartPrice] = useState<number>(0);
+    const [currency, setCurrency] = useState<string>("VND");
+
+    const handlePlaceOrder = () => {
+        if (!profile) return;
+
+        const placeOrderInput: PlaceOrderInput = {
+            cartId,
+            userId: profile.id,
+            paymentMethod,
+            currency,
+            description: ""
+        };
+
+        dispatch(placeOrder(placeOrderInput)).then(() => {
+            dispatch(generateTriggerValue(Math.random() + 1));
+        });
+    };
 
     const handleApplyDiscount = (discountId: string) => {
         if (!discountId || !cartId || appliedProductIdList.length == 0 || !profile) return;
@@ -52,10 +73,11 @@ const CartPage = () => {
     };
 
     // Định dạng giá tiền VND
-    const formatPrice = (price: number) => {
-        return new Intl.NumberFormat("vi-VN", {
+    const formatPrice = (price: number, paymentMethod: string) => {
+        const isPaypal = paymentMethod === "PAYPAL";
+        return new Intl.NumberFormat(isPaypal ? "en-US" : "vi-VN", {
             style: "currency",
-            currency: "VND"
+            currency: isPaypal ? "USD" : "VND"
         }).format(price);
     };
 
@@ -77,6 +99,14 @@ const CartPage = () => {
     }, [appliedProductIdList.length]);
 
     useEffect(() => {
+        if (paymentUrl) {
+            dispatch(generateTriggerValue(Math.random() + 1));
+            window.location.href = paymentUrl;
+            if (profile) dispatch(getCart(profile.id));
+        }
+    }, [paymentUrl]);
+
+    useEffect(() => {
         const shopIdList: string[] = Array.from(new Set(cartItems.map((cartItem) => cartItem.shopId)));
 
         setShopList(shopIdList);
@@ -92,9 +122,13 @@ const CartPage = () => {
     }, [JSON.stringify(cartItems)]);
 
     useEffect(() => {
-        // Scroll to top when component mounts
         window.scrollTo(0, 0);
     }, []);
+
+    useEffect(() => {
+        setCurrency(paymentMethod !== "PAYPAL" ? "VND" : "USD");
+        setTotalCartPrice(paymentMethod !== "PAYPAL" ? totalPrice : parseFloat((totalPrice / 26000).toFixed(2)));
+    }, [totalPrice, paymentMethod]);
 
     useEffect(() => {
         let timerId = null;
@@ -190,7 +224,14 @@ const CartPage = () => {
                                         {/* Thông tin sản phẩm */}
                                         <div className="flex-grow">
                                             <h3 className="font-medium text-lg">{item.name}</h3>
-                                            <p className="text-red-600 font-semibold mt-1">{formatPrice(item.price)}</p>
+                                            <p className="text-red-600 font-semibold mt-1">
+                                                {paymentMethod !== "PAYPAL"
+                                                    ? formatPrice(item.price, paymentMethod)
+                                                    : formatPrice(
+                                                          parseFloat((item.price / 26000).toFixed(2)),
+                                                          paymentMethod
+                                                      )}
+                                            </p>
                                             <div
                                                 className="flex gap-1 items-center mt-2 cursor-pointer"
                                                 onClick={() => handleSelectAppliedProduct(item.productId)}
@@ -227,7 +268,6 @@ const CartPage = () => {
                                                     <BsPlus className="h-4 w-4" />
                                                 </button>
                                             </div>
-
                                             <button
                                                 className="text-red-500 hover:text-red-700 transition"
                                                 onClick={() => handleRemoveItem(item.id, profile.id)}
@@ -249,14 +289,30 @@ const CartPage = () => {
 
                                 <Separator className="mb-4" />
 
-                                <div className="space-y-3 mb-6">
+                                <div className="space-y-4 mb-6">
                                     <div className="flex justify-between">
                                         <span className="text-gray-600">Tạm tính</span>
-                                        <span>{formatPrice(cartTotal)}</span>
+                                        <span className="w-24">{formatPrice(totalCartPrice, paymentMethod)}</span>
                                     </div>
+
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-600">Phương thức </span>
+                                        <select
+                                            className="border border-gray-100 rounded-sm h-8 w-24"
+                                            onInput={(e) => {
+                                                const target = e.target as HTMLTextAreaElement;
+                                                setPaymentMethod(target.value);
+                                            }}
+                                        >
+                                            {paymentMethods.map((paymentMethod) => (
+                                                <option key={paymentMethod}>{paymentMethod}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
                                     <div className="flex justify-between">
                                         <span className="text-gray-600">Phí vận chuyển</span>
-                                        <span>Miễn phí</span>
+                                        <span className="w-24">Miễn phí</span>
                                     </div>
                                 </div>
 
@@ -264,10 +320,16 @@ const CartPage = () => {
 
                                 <div className="flex justify-between mb-6">
                                     <span className="font-bold">Tổng cộng</span>
-                                    <span className="font-bold text-red-600 text-xl">{formatPrice(cartTotal)}</span>
+                                    <span className="font-bold text-red-600 text-xl">
+                                        {formatPrice(totalCartPrice, paymentMethod)}
+                                    </span>
                                 </div>
 
-                                <Button className="w-full py-6" disabled={isProcessing} onClick={handleCheckout}>
+                                <Button
+                                    className="w-full py-6 bg-blue-600 cursor-pointer active:scale-95 text-white"
+                                    disabled={isProcessing}
+                                    onClick={handlePlaceOrder}
+                                >
                                     {isProcessing ? "Đang xử lý..." : "Tiến hành đặt hàng"}
                                 </Button>
 

@@ -17,83 +17,114 @@ import { getAllAddress } from "./redux/thunks/address";
 import { getProfile } from "./redux/thunks/profile";
 import ProductDetails from "./pages/product.details";
 import { getCart } from "./redux/thunks/cart";
+import { getOrderList, removeOrderById } from "./utils/handleOrderList";
+import api from "./lib/axios/api.service";
+import { CheckOrderInput, Order, OrderResponse } from "./schema/order";
+import { ENDPOINTS } from "./lib/axios/endpoint";
+import { setPaymentUrl } from "./redux/slices/orderSlice";
 
 const LoadingComponent = () => (
-  <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
-    <div className="text-lg font-semibold text-gray-700 animate-pulse">
-      Đang tải....
+    <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
+        <div className="text-lg font-semibold text-gray-700 animate-pulse">Đang tải....</div>
+        <div className="mt-2 text-sm text-gray-500 animate-fade-in">Vui lòng chờ trong giây lát</div>
     </div>
-    <div className="mt-2 text-sm text-gray-500 animate-fade-in">
-      Vui lòng chờ trong giây lát
-    </div>
-  </div>
 );
 
 function App() {
- const [isLogin, setIsLogin] = useState<boolean>(false);
-  const dispatch = useAppDispatch();
-  const { account, isLoading: isAccountLoading } = useAppSelector(
-    (state) => state.account
-  );
-  const { profile, isLoading: isProfileLoading } = useAppSelector(
-    (state) => state.profile
-  );
+    const [isLogin, setIsLogin] = useState<boolean>(false);
+    const dispatch = useAppDispatch();
+    const { account, isLoading: isAccountLoading } = useAppSelector((state) => state.account);
+    const { profile, isLoading: isProfileLoading } = useAppSelector((state) => state.profile);
+    const { trigger } = useAppSelector((state) => state.order);
 
-  useEffect(() => {
-    const token = getAccessToken();
-    if (token) {
-      dispatch(getAccountInfo()).then(() => {
-        setIsLogin(true);
-      });
-    }
-  }, [dispatch]);
+    useEffect(() => {
+        const token = getAccessToken();
+        if (token) {
+            dispatch(getAccountInfo()).then(() => {
+                setIsLogin(true);
+            });
+        }
+    }, [dispatch]);
 
-  useEffect(() => {
-    if (account?.id) {
-      dispatch(getProfile(account.id));
-    }
-  }, [dispatch, account]);
+    useEffect(() => {
+        if (account?.id) {
+            dispatch(getProfile(account.id));
+        }
+    }, [dispatch, account]);
 
-  useEffect(() => {
-    if (profile?.id) {
-      dispatch(getAllAddress(profile.id));
-    }
-  }, [dispatch, profile]);
-return (
-    <BrowserRouter>
-      <Suspense fallback={<LoadingComponent />}>
-        {isProfileLoading || isAccountLoading ? (
-          <LoadingComponent />
-        ) : (
-          <Routes>
-            <Route element={<AuthLayout />}>
-              <Route
-                path="login"
-                element={isLogin ? <Navigate to="/" replace /> : <Login />}
-              />
-              <Route
-                path="register"
-                element={isLogin ? <Navigate to="/" replace /> : <Register />}
-              />
-            </Route>
+    useEffect(() => {
+        if (profile?.id) {
+            dispatch(getAllAddress(profile.id));
+            dispatch(getCart(profile.id));
+        }
+    }, [dispatch, profile]);
 
-            <Route path="/" element={<MainLayout />}>
-              <Route index element={<HomePage />} />
-              <Route path="products" element={<Products />} />
-              <Route path="product/:id" element={<ProductDetails />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="cart" element={<CartPage />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="cart" element={<CartPage />} />
+    useEffect(() => {
+        const orderList: CheckOrderInput[] = getOrderList();
+        let timerId = null;
+        if (orderList.length > 0) {
+            timerId = setInterval(() => {
+                console.log(orderList);
+                Promise.allSettled(
+                    orderList.map(({ orderNumber }) =>
+                        api.get<OrderResponse>(ENDPOINTS.ORDER.GET_ORDER_BY_ORDER_NUMBER(orderNumber))
+                    )
+                ).then((data) => {
+                    const createdPaymentList: string[] = [];
+                    const paymentUrlList: string[] = [];
+                    data.forEach((result) => {
+                        if (result.status === "fulfilled") {
+                            const order: Order = result.value.data;
 
-              <Route path="dashboard" element={<Dashboard />} />
-            </Route>
-          </Routes>
-        )}
-      </Suspense>
-      <Toaster position="top-right" richColors closeButton />
-    </BrowserRouter>
-  );
+                            if (order.status === "CREATED_PAYMENT") {
+                                createdPaymentList.push(order.orderNumber);
+                                paymentUrlList.push(order.paymentUrl);
+                            }
+                        }
+                    });
+
+                    dispatch(setPaymentUrl(paymentUrlList[0]));
+                    removeOrderById(createdPaymentList);
+                });
+            }, 3000);
+        } else {
+            if (timerId) clearInterval(timerId);
+        }
+
+        return () => {
+            if (timerId) clearInterval(timerId);
+        };
+    }, [trigger]);
+
+    return (
+        <BrowserRouter>
+            <Suspense fallback={<LoadingComponent />}>
+                {isProfileLoading || isAccountLoading ? (
+                    <LoadingComponent />
+                ) : (
+                    <Routes>
+                        <Route element={<AuthLayout />}>
+                            <Route path="login" element={isLogin ? <Navigate to="/" replace /> : <Login />} />
+                            <Route path="register" element={isLogin ? <Navigate to="/" replace /> : <Register />} />
+                        </Route>
+
+                        <Route path="/" element={<MainLayout />}>
+                            <Route index element={<HomePage />} />
+                            <Route path="products" element={<Products />} />
+                            <Route path="product/:id" element={<ProductDetails />} />
+                            <Route path="profile" element={<Profile />} />
+                            <Route path="cart" element={<CartPage />} />
+                            <Route path="profile" element={<Profile />} />
+                            <Route path="cart" element={<CartPage />} />
+
+                            <Route path="dashboard" element={<Dashboard />} />
+                        </Route>
+                    </Routes>
+                )}
+            </Suspense>
+            <Toaster position="top-right" richColors closeButton />
+        </BrowserRouter>
+    );
 }
 
 export default App;
