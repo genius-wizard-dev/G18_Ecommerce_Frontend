@@ -6,11 +6,14 @@ export const ENDPOINTS = {
         REFRESH: `/identity/auth/refresh`,
         INTROSPECT: `/identity/auth/introspect`,
         MY_INFO: `/identity/users/my-info`,
-        DELETE_ACCOUNT: (userId: string) => `/identity/users/${userId}`
+        DELETE_ACCOUNT: (userId: string) => `/identity/users/${userId}`,
+        SEND_OTP_CHANGE_PASSWORD: (userId: string) => `/identity/auth/send-otp-change-password/${userId}`,
+        CHANGE_PASSWORD: (userId: string) => `/identity/auth/change-password/${userId}`
     },
     PROFILE: {
         INFO: (userId: string) => `/profile/${userId}`,
-        REGISTER_SHOP: (profileId: string) => `/profile/register-shop/${profileId}`
+        REGISTER_SHOP: (profileId: string) => `/profile/register-shop/${profileId}`,
+        CHECK_SHOP: (userId: string) => `/profile/check-shop/${userId}`
     },
     ADDRESS: {
         CREATE: (profileId: string) => `/profile/address/create/${profileId}`,
@@ -50,5 +53,9 @@ export const ENDPOINTS = {
     ORDER: {
         GET_ORDER_BY_ORDER_NUMBER: (orderNumber: string) => `/api/orders/${orderNumber}`,
         GET_ORDERS_BY_USER: (userId: string) => `/api/orders/users/${userId}`
+    },
+    INVENTORY: {
+        CREATE: "/api/inventories",
+        GET_BY_PRODUCT_ID: (productId: string) => `/api/inventories?product_id=${productId}`
     }
 };

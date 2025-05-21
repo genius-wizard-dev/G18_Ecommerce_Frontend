@@ -13,6 +13,7 @@ export default function Header() {
   const dispatch = useAppDispatch();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const { profile } = useAppSelector((state) => state.profile);
 
   // Handle click outside to close dropdown
   useEffect(() => {
@@ -117,6 +118,17 @@ export default function Header() {
                     >
                       Thông tin cá nhân
                     </Link>
+                    {profile && (
+                      <Link
+                        to={profile.isShop ? "/dashboard" : "/register-shop"}
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        {profile.isShop
+                          ? "Quản lý cửa hàng"
+                          : "Đăng ký mở shop"}
+                      </Link>
+                    )}
                     <button
                       onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -147,9 +159,9 @@ export default function Header() {
       </div>
 
       {/* Categories navbar */}
-      <nav className="bg-gray-100 py-3">
+      {/* <nav className="bg-gray-100 py-3">
         <div className="container mx-auto px-4">
-          {/* <ul className="flex items-center justify-center space-x-8">
+          <ul className="flex items-center justify-center space-x-8">
             {categories.map((category, index) => (
               <li key={index}>
                 <Link
@@ -160,9 +172,9 @@ export default function Header() {
                 </Link>
               </li>
             ))}
-          </ul> */}
+          </ul>
         </div>
-      </nav>
+      </nav> */}
     </header>
   );
 }

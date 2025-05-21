@@ -8,20 +8,21 @@ import CartPage from "./pages/cart";
 import Dashboard from "./pages/dashboard/dashboard";
 import HomePage from "./pages/home";
 import Login from "./pages/login";
+import ProductDetails from "./pages/product.details";
 import Products from "./pages/products";
 import Profile from "./pages/profile";
 import Register from "./pages/register";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import { getAccountInfo } from "./redux/thunks/account";
 import { getAllAddress } from "./redux/thunks/address";
-import { getProfile } from "./redux/thunks/profile";
-import ProductDetails from "./pages/product.details";
 import { getCart } from "./redux/thunks/cart";
 import { getOrderList, removeOrderById } from "./utils/handleOrderList";
 import api from "./lib/axios/api.service";
 import { CheckOrderInput, Order, OrderResponse } from "./schema/order";
 import { ENDPOINTS } from "./lib/axios/endpoint";
 import { setPaymentUrl } from "./redux/slices/orderSlice";
+import { getProfile } from "./redux/thunks/profile";
+import RegisterShop from "./pages/register-shop";
 
 const LoadingComponent = () => (
     <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
@@ -118,6 +119,7 @@ function App() {
                             <Route path="cart" element={<CartPage />} />
 
                             <Route path="dashboard" element={<Dashboard />} />
+                            <Route path="register-shop" element={<RegisterShop />} />
                         </Route>
                     </Routes>
                 )}
