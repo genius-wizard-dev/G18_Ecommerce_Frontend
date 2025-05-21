@@ -74,7 +74,10 @@ class ApiClient {
               }
             }
           }
-
+          // const token = localStorage.getItem("access_token");
+          // if (token && config.headers) {
+          //   config.headers.Authorization = `Bearer ${token}`;
+          // }
           return config;
         },
         (error) => {
@@ -137,7 +140,6 @@ class ApiClient {
               console.log(`Access token exists: ${!!token}`);
 
               if (!token) {
-                // Không có refresh token, từ chối request
                 console.log("No access token available, rejecting request");
                 ApiClient.processQueue(error);
                 ApiClient.isRefreshing = false;
@@ -190,6 +192,7 @@ class ApiClient {
                 ApiClient.processQueue(error);
                 ApiClient.isRefreshing = false;
                 localStorage.removeItem("access_token");
+                window.location.reload();
                 return Promise.reject(error);
               }
             } catch (refreshError: any) {
@@ -200,6 +203,8 @@ class ApiClient {
               );
               ApiClient.processQueue(refreshError);
               ApiClient.isRefreshing = false;
+              localStorage.removeItem("access_token");
+              window.location.reload();
               return Promise.reject(refreshError);
             }
           } else if (error.response?.status === 401) {

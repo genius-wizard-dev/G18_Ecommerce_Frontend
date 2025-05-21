@@ -1,409 +1,272 @@
-import React, { useState, useEffect, useRef } from 'react';
-
-// Define Product interface with array of images
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image?: string[]; // Array to support multiple images
-  discount?: number;
-}
+import {
+  prepareProductData,
+  ProductForm,
+  ProductList,
+  ProductStatistics,
+  validateProductData,
+} from "@/components/shop";
+import api from "@/lib/axios/api.service";
+import { ENDPOINTS } from "@/lib/axios/endpoint";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import {
+  resetProductForm,
+  setIsUploading,
+  setSelectedProduct,
+} from "@/redux/slices/shopManagerSlice";
+import {
+  createProduct,
+  deleteProduct,
+  fetchProducts,
+  toggleProductActive,
+  updateProduct,
+} from "@/redux/thunks/shopManagerThunk";
+import "@/styles/markdown.css";
+import { useEffect, useMemo } from "react";
+import { toast } from "sonner";
 
 const ProductManagement: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [name, setName] = useState('');
-  const [price, setPrice] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [images, setImages] = useState<string[]>([]); // Array for multiple images
-  const [discount, setDiscount] = useState('');
-  const [editId, setEditId] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const dispatch = useAppDispatch();
+  const {
+    products,
+    selectedProduct,
+    isLoading,
+    isUploading,
+    isDeleting,
+    inventory,
+    dataFetched,
+  } = useAppSelector((state) => state.shopManager);
+  const { profile } = useAppSelector((state) => state.profile);
 
-  // Load products from localStorage
+  // Lấy danh sách sản phẩm khi profile thay đổi hoặc chưa fetch
   useEffect(() => {
-    try {
-      const savedProducts = localStorage.getItem('products');
-      if (savedProducts) {
-        setProducts(JSON.parse(savedProducts));
-      }
-    } catch (error) {
-      console.error('Error loading products from localStorage:', error);
+    // Chỉ fetch khi có shopId và chưa fetch data
+    if (profile?.shopId && !dataFetched) {
+      dispatch(fetchProducts(profile.shopId));
     }
-  }, []);
+  }, [profile, dispatch, dataFetched]);
 
-  // Save products to localStorage
+  // Fetch inventory cho tất cả sản phẩm khi danh sách sản phẩm thay đổi
   useEffect(() => {
-    try {
-      localStorage.setItem('products', JSON.stringify(products));
-    } catch (error) {
-      console.error('Error saving products to localStorage:', error);
-      alert('Lưu trữ sản phẩm thất bại do giới hạn bộ nhớ.');
-    }
-  }, [products]);
+    const fetchAllInventories = async () => {
+      try {
+        // Chỉ fetch inventory cho những sản phẩm chưa có trong store
+        const productsNeedInventory = products.filter(
+          (product) => product._id && !inventory[product._id]
+        );
 
-  // Handle multiple file selection
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files) {
-      const fileArray = Array.from(files);
-      const validImages: string[] = [];
-
-      for (const file of fileArray) {
-        if (!file.type.startsWith('image/')) {
-          alert(`Tệp ${file.name} không phải là hình ảnh.`);
-          continue;
-        }
-        if (file.size > 5 * 1024 * 1024) {
-          alert(`Hình ảnh ${file.name} quá lớn. Vui lòng chọn tệp dưới 5MB.`);
-          continue;
-        }
-        const reader = new FileReader();
-        reader.onload = () => {
-          if (typeof reader.result === 'string') {
-            validImages.push(reader.result);
-            if (validImages.length === fileArray.length) {
-              setImages(validImages); // Update state when all files are processed
+        if (productsNeedInventory.length > 0) {
+          // Fetch tất cả inventory một lúc
+          const inventoryPromises = productsNeedInventory.map((product) => {
+            if (product._id) {
+              return api
+                .get(ENDPOINTS.INVENTORY.GET_BY_PRODUCT_ID(product._id))
+                .then((res) => {
+                  if (res) {
+                    return { productId: product._id, inventory: res };
+                  }
+                  return null;
+                })
+                .catch(() => null);
             }
-          }
-        };
-        reader.onerror = () => {
-          alert(`Lỗi khi đọc tệp ${file.name}.`);
-        };
-        reader.readAsDataURL(file);
+            return null;
+          });
+
+          const results = await Promise.all(inventoryPromises);
+
+          // Lưu tất cả inventory vào redux
+          results.forEach((result) => {
+            if (result && result.productId && result.inventory) {
+              dispatch({
+                type: "shopManager/fetchInventory/fulfilled",
+                payload: result.inventory,
+              });
+            }
+          });
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy thông tin kho hàng:", error);
       }
-    }
-  };
+    };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const parsedPrice = Number(price);
-    const parsedQuantity = Number(quantity);
-    const parsedDiscount = discount ? Number(discount) : undefined;
+    fetchAllInventories();
+  }, [products, dispatch, inventory]);
 
-    // Validation
-    if (isNaN(parsedPrice) || parsedPrice < 0) {
-      alert('Giá phải là một số không âm.');
-      return;
-    }
-    if (isNaN(parsedQuantity) || parsedQuantity < 0) {
-      alert('Số lượng phải là một số không âm.');
-      return;
-    }
-    if (!name.trim()) {
-      alert('Tên sản phẩm không được để trống.');
-      return;
-    }
-    if (parsedDiscount !== undefined && (parsedDiscount < 0 || parsedDiscount > 100)) {
-      alert('Giảm giá phải từ 0 đến 100%.');
-      return;
-    }
+  // Sử dụng useMemo để tính toán các giá trị thống kê
+  const statistics = useMemo(() => {
+    // Chỉ đếm sản phẩm đang hoạt động (isActive !== false)
+    const activeProducts = products.filter(
+      (product) => product.isActive !== false
+    );
 
-    if (editId !== null) {
-      setProducts(
-        products.map((product) =>
-          product.id === editId
-            ? { ...product, name, price: parsedPrice, quantity: parsedQuantity, image: images.length > 0 ? images : product.image, discount: parsedDiscount }
-            : product
-        )
+    return {
+      totalProducts: activeProducts.length,
+      isLoading,
+    };
+  }, [products, isLoading]);
+
+  const handleSubmit = async (productData: {
+    name: string;
+    price: number;
+    quantity: number;
+    category: string;
+    description: string;
+    attributes: any;
+    tags: string[];
+    thumbnailFile: File | null;
+    imageFiles: File[];
+  }) => {
+    try {
+      dispatch(setIsUploading(true));
+
+      // Validate dữ liệu
+      const isValid = validateProductData(
+        productData.name,
+        productData.price,
+        productData.quantity,
+        productData.category,
+        productData.thumbnailFile,
+        selectedProduct !== null
       );
-      setEditId(null);
-    } else {
-      const newProduct: Product = {
-        id: Date.now().toString(),
-        name,
-        price: parsedPrice,
-        quantity: parsedQuantity,
-        image: images.length > 0 ? images : undefined,
-        discount: parsedDiscount,
+
+      if (!isValid) {
+        dispatch(setIsUploading(false));
+        return;
+      }
+
+      if (selectedProduct !== null) {
+        // Xử lý cập nhật sản phẩm
+        const updatedProduct = prepareProductData(
+          productData.name,
+          productData.price,
+          productData.category,
+          productData.description,
+          productData.attributes,
+          productData.tags,
+          profile?.shopId || "",
+          productData.thumbnailFile,
+          productData.imageFiles
+        );
+
+        if (profile?.shopId && selectedProduct._id) {
+          // Thực hiện cập nhật sản phẩm và đợi kết quả
+          await dispatch(
+            updateProduct({
+              productId: selectedProduct._id,
+              productData: updatedProduct,
+              quantity: productData.quantity,
+            })
+          );
+        }
+      } else {
+        // Tạo sản phẩm mới
+        const newProduct = prepareProductData(
+          productData.name,
+          productData.price,
+          productData.category,
+          productData.description,
+          productData.attributes,
+          productData.tags,
+          profile?.shopId || "",
+          productData.thumbnailFile,
+          productData.imageFiles
+        );
+
+        // Gửi request API để tạo sản phẩm
+        if (profile?.shopId) {
+          // Thực hiện tạo sản phẩm và đợi kết quả
+          await dispatch(
+            createProduct({
+              productData: newProduct,
+              quantity: productData.quantity,
+              shopId: profile.shopId,
+            })
+          );
+          dispatch(resetProductForm());
+        }
+      }
+    } catch (error) {
+      console.error("Lỗi khi xử lý form:", error);
+      toast.error("Đã xảy ra lỗi. Vui lòng thử lại sau.");
+    } finally {
+      dispatch(setIsUploading(false));
+    }
+  };
+
+  const handleEdit = async (product: any) => {
+    try {
+      // Lấy thông tin inventory từ redux nếu có
+      const productInventory = product._id ? inventory[product._id] : null;
+
+      // Đảm bảo attribute được xử lý đúng
+      const productData = {
+        ...product,
+        quantity: productInventory?.total_quantity || 0,
+        attribute: product.attribute || {},
       };
-      setProducts([...products, newProduct]);
-    }
-    // Reset form
-    setName('');
-    setPrice('');
-    setQuantity('');
-    setImages([]);
-    setDiscount('');
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+
+      console.log("Editing product with attributes:", productData.attribute);
+      dispatch(setSelectedProduct(productData));
+    } catch (error) {
+      console.error("Lỗi khi xử lý edit sản phẩm:", error);
+      toast.error("Không thể chỉnh sửa sản phẩm. Vui lòng thử lại sau.");
     }
   };
 
-  const handleEdit = (product: Product) => {
-    setName(product.name);
-    setPrice(product.price.toString());
-    setQuantity(product.quantity.toString());
-    setImages(product.image || []);
-    setDiscount(product.discount?.toString() || '');
-    setEditId(product.id);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+  const handleDelete = async (id: string) => {
+    try {
+      await dispatch(deleteProduct(id));
+      // Không cần fetch lại toàn bộ danh sách sản phẩm vì Redux đã được cập nhật
+    } catch (error) {
+      console.error("Lỗi khi xóa sản phẩm:", error);
+      toast.error("Không thể xóa sản phẩm. Vui lòng thử lại sau.");
     }
   };
 
-  const handleDelete = (id: string) => {
-    setProducts(products.filter((product) => product.id !== id));
+  const handleToggleActive = async (id: string, isActive: boolean) => {
+    try {
+      await dispatch(toggleProductActive({ productId: id, isActive }));
+      // Không cần fetch lại toàn bộ danh sách sản phẩm vì Redux đã được cập nhật
+    } catch (error) {
+      console.error("Lỗi khi cập nhật trạng thái sản phẩm:", error);
+      toast.error(
+        "Không thể cập nhật trạng thái sản phẩm. Vui lòng thử lại sau."
+      );
+    }
   };
-
-  // Statistics
-  const totalProducts = products.length;
-  const inStock = products.filter((p) => p.quantity > 0).length;
-  const outOfStock = products.filter((p) => p.quantity === 0).length;
 
   return (
-    <section id="products" className="mb-12">
-      <h2 className="text-2xl font-semibold mb-6">Quản lý sản phẩm</h2>
+    <section id="products" className="space-y-6 relative">
+      <h2 className="text-3xl font-bold tracking-tight flex items-center">
+        Quản lý sản phẩm
+      </h2>
 
       {/* Product Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-        {/* Card 1: Tổng số sản phẩm */}
-        <div className="bg-white rounded-lg shadow-sm p-4 flex items-center space-x-4 border border-gray-100">
-          <div className="p-2 bg-blue-100 rounded-full">
-            <svg
-              className="w-6 h-6 text-blue-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M20 7l-8-4-8 4m16 0v10a2 2 0 01-2 2H6a2 2 0 01-2-2V7m16 0l-8 4m-8-4l8 4m0 0v10"
-              ></path>
-            </svg>
-          </div>
-          <div>
-            <p className="text-sm text-gray-500">Tổng số sản phẩm</p>
-            <p className="text-2xl font-semibold text-gray-900">{totalProducts.toLocaleString()}</p>
-          </div>
-        </div>
-
-        {/* Card 2: Sản phẩm còn hàng */}
-        <div className="bg-white rounded-lg shadow-sm p-4 flex items-center space-x-4 border border-gray-100">
-          <div className="p-2 bg-green-100 rounded-full">
-            <svg
-              className="w-6 h-6 text-green-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M5 13l4 4L19 7"
-              ></path>
-            </svg>
-          </div>
-          <div>
-            <p className="text-sm text-gray-500">Sản phẩm còn hàng</p>
-            <p className="text-2xl font-semibold text-gray-900">{inStock.toLocaleString()}</p>
-          </div>
-        </div>
-
-        {/* Card 3: Sản phẩm hết hàng */}
-        <div className="bg-white rounded-lg shadow-sm p-4 flex items-center space-x-4 border border-gray-100">
-          <div className="p-2 bg-red-100 rounded-full">
-            <svg
-              className="w-6 h-6 text-red-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M6 18L18 6M6 6l12 12"
-              ></path>
-            </svg>
-          </div>
-          <div>
-            <p className="text-sm text-gray-500">Sản phẩm hết hàng</p>
-            <p className="text-2xl font-semibold text-gray-900">{outOfStock.toLocaleString()}</p>
-          </div>
-        </div>
-      </div>
+      <ProductStatistics
+        totalProducts={statistics.totalProducts}
+        isLoading={statistics.isLoading}
+      />
 
       {/* Add/Edit Product Form */}
-      <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-        <h3 className="text-lg font-medium mb-4">
-          {editId !== null ? 'Sửa sản phẩm' : 'Thêm sản phẩm'}
-        </h3>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-sm font-medium">Tên sản phẩm</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium">Giá</label>
-            <input
-              type="number"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-              min="0"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium">Số lượng</label>
-            <input
-              type="number"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-              min="0"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium">Hình ảnh</label>
-            <input
-              type="file"
-              accept="image/*"
-              multiple // Enable multiple file selection
-              onChange={handleImageChange}
-              className="w-full p-2 border rounded"
-              ref={fileInputRef}
-            />
-            {images.length > 0 && (
-              <div className="mt-2">
-                <p className="text-sm">Xem trước:</p>
-                <div className="flex flex-wrap gap-2">
-                  {images.map((img, index) => (
-                    <img
-                      key={index}
-                      src={img}
-                      alt={`Preview ${index + 1}`}
-                      className="w-32 h-32 object-cover rounded"
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium">Giảm giá (%)</label>
-            <input
-              type="number"
-              value={discount}
-              onChange={(e) => setDiscount(e.target.value)}
-              className="w-full p-2 border rounded"
-              min="0"
-              max="100"
-            />
-          </div>
-          <div className="flex gap-2">
-            <button
-              type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
-              {editId !== null ? 'Cập nhật' : 'Thêm'}
-            </button>
-            {editId !== null && (
-              <button
-                type="button"
-                onClick={() => {
-                  setEditId(null);
-                  setName('');
-                  setPrice('');
-                  setQuantity('');
-                  setImages([]);
-                  setDiscount('');
-                  if (fileInputRef.current) {
-                    fileInputRef.current.value = '';
-                  }
-                }}
-                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-              >
-                Hủy
-              </button>
-            )}
-          </div>
-        </form>
-      </div>
+      <ProductForm
+        selectedProduct={selectedProduct}
+        isLoading={isLoading}
+        isUploading={isUploading}
+        onSubmit={handleSubmit}
+        onCancel={() => dispatch(resetProductForm())}
+        setIsUploading={(uploading) => dispatch(setIsUploading(uploading))}
+      />
 
       {/* Product List */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-lg font-medium mb-4">Danh sách sản phẩm</h3>
-        <table className="w-full">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="p-2 text-left">Tên</th>
-              <th className="p-2 text-left">Giá</th>
-              <th className="p-2 text-left">Số lượng</th>
-              <th className="p-2 text-left">Hình ảnh</th>
-              <th className="p-2 text-left">Giảm giá</th>
-              <th className="p-2 text-left">Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="p-2 text-center">
-                  Chưa có sản phẩm nào.
-                </td>
-              </tr>
-            ) : (
-              products.map((product) => (
-                <tr key={product.id}>
-                  <td className="p-2">{product.name}</td>
-                  <td className="p-2">{product.price.toLocaleString()}₫</td>
-                  <td className="p-2">{product.quantity}</td>
-                  <td className="p-2">
-                    {product.image && product.image.length > 0 ? (
-                      <div className="flex flex-wrap gap-2">
-                        {product.image.slice(0, 3).map((img, index) => (
-                          <img
-                            key={index}
-                            src={img}
-                            alt={`${product.name} ${index + 1}`}
-                            className="w-16 h-16 object-cover rounded"
-                          />
-                        ))}
-                        {product.image.length > 3 && (
-                          <span className="text-sm text-gray-500">
-                            +{product.image.length - 3} more
-                          </span>
-                        )}
-                      </div>
-                    ) : (
-                      'N/A'
-                    )}
-                  </td>
-                  <td className="p-2">{product.discount ? `${product.discount}%` : 'N/A'}</td>
-                  <td className="p-2">
-                    <button
-                      onClick={() => handleEdit(product)}
-                      className="text-blue-500 mr-2"
-                    >
-                      Sửa
-                    </button>
-                    <button
-                      onClick={() => handleDelete(product.id)}
-                      className="text-red-500"
-                    >
-                      Xóa
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <ProductList
+        products={products}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onToggleActive={handleToggleActive}
+        isLoading={isLoading}
+        isDeleting={isDeleting}
+        editId={selectedProduct?._id || null}
+        inventoryData={inventory}
+      />
     </section>
   );
 };
