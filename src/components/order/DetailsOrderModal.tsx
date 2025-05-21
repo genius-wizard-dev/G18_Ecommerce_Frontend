@@ -63,7 +63,7 @@ export default function DetailsOrderModal({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-800/70">
             <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold">Product List</h2>
+                    <h2 className="text-xl font-semibold">Danh sách sản phẩm</h2>
                     <button
                         className="text-gray-500 hover:text-gray-800 text-2xl font-bold"
                         onClick={handleToggleDisplayDetailsOrderModal}

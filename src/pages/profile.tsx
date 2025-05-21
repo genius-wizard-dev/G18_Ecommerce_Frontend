@@ -14,6 +14,7 @@ import { SecuritySettings } from "@/components/profile/SecuritySettings";
 type TabType = "info" | "orders" | "security";
 
 const ProfilePage = () => {
+    // Get account and profile from Redux
     const dispatch = useAppDispatch();
     const { account, isAuthenticated } = useAppSelector((state) => state.account);
     const { profile, isLoading: profileLoading } = useAppSelector((state) => state.profile);
@@ -120,7 +121,6 @@ const ProfilePage = () => {
                     )}
 
                     {activeTab === "orders" && profile && <OrderHistory user={profile} />}
-
                     {activeTab === "security" && <SecuritySettings />}
                 </div>
             </div>

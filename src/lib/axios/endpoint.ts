@@ -24,6 +24,7 @@ export const ENDPOINTS = {
         DELETE: (addressId: string) => `/profile/address/delete/${addressId}`
     },
     PRODUCT: {
+        CREATE: "/api/products",
         GET_ALL: (page?: number, limit?: number, category?: string) =>
             `/api/products${
                 page || limit || category
@@ -36,7 +37,8 @@ export const ENDPOINTS = {
                           .join("&")}`
                     : ""
             }`,
-        GET_BY_ID: (productId: string) => `/api/products/${productId}`
+        GET_BY_ID: (productId: string) => `/api/products/${productId}`,
+        GET_BY_SHOP: (shopId: string) => `/api/products?shopId=${shopId}`
     },
     CART: {
         GET_CART: (userId: string) => `/api/carts/users/${userId}`,

@@ -117,7 +117,6 @@ function App() {
                             <Route path="cart" element={<CartPage />} />
                             <Route path="profile" element={<Profile />} />
                             <Route path="cart" element={<CartPage />} />
-
                             <Route path="dashboard" element={<Dashboard />} />
                             <Route path="register-shop" element={<RegisterShop />} />
                         </Route>
