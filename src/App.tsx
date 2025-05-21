@@ -20,6 +20,7 @@ import { getAllAddress } from "./redux/thunks/address";
 import { getCart } from "./redux/thunks/cart";
 import { getProfile } from "./redux/thunks/profile";
 import BrandShop from "./pages/shop/BrandShop";
+import ProductStats from "./pages/product.stats";
 
 const LoadingComponent = () => (
   <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
@@ -94,6 +95,7 @@ function App() {
               <Route path="register-shop" element={<RegisterShop />} />
 
               <Route path="brand-shop" element={<BrandShop />} />
+              <Route path="stats-shop" element={<ProductStats />} />
               <Route
                 path="*"
                 element={
