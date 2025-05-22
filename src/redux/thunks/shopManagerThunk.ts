@@ -9,7 +9,6 @@ import {
 } from "@/utils/cloudinary.config";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "sonner";
-import { string } from "zod";
 
 // Fetch products của shop
 export const fetchProducts = createAsyncThunk(
