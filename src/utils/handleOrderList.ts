@@ -1,5 +1,14 @@
 import { CheckOrderInput } from "@/schema/order";
 
+export function setOrderList(orderInput: CheckOrderInput) {
+    const data = localStorage.getItem("orderList");
+    if (!data) localStorage.setItem("orderList", JSON.stringify([orderInput]));
+    else {
+        const orderList: CheckOrderInput[] = JSON.parse(data);
+        localStorage.setItem("orderList", JSON.stringify(orderList.push(orderInput)));
+    }
+}
+
 export function getOrderList(): CheckOrderInput[] {
     const data = localStorage.getItem("orderList");
     return data ? JSON.parse(data) : [];

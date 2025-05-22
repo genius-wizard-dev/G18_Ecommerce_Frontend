@@ -38,7 +38,10 @@ export const ENDPOINTS = {
                     : ""
             }`,
         GET_BY_ID: (productId: string) => `/api/products/${productId}`,
-        GET_BY_SHOP: (shopId: string) => `/api/products?shopId=${shopId}`
+        GET_BY_SHOP: (shopId: string) => `/api/products?shopId=${shopId}`,
+        GET_BY_CATEGORY: (category: string, limit?: number) =>
+            `/api/products?category=${category}${limit ? `&limit=${limit}` : ""}`,
+        UPDATE: (productId: string) => `/api/products/${productId}`
     },
     CART: {
         GET_CART: (userId: string) => `/api/carts/users/${userId}`,
@@ -50,14 +53,19 @@ export const ENDPOINTS = {
     },
     DISCOUNT: {
         GET_DISCOUNTS_BY_SHOP: (shopId: string) => `/api/discounts?shopId=${shopId}`,
-        APPLY_DISCOUNT: "/api/carts/apply-discount"
+        APPLY_DISCOUNT: "/api/carts/apply-discount",
+        CREATE_DISCOUNT: "/api/discounts",
+        UPDATE_DISCOUNT: (discountId: string) => `/api/discounts/${discountId}`,
+        DELETE_DISCOUNT: (discountId: string) => `/api/discounts/${discountId}`
     },
     ORDER: {
         GET_ORDER_BY_ORDER_NUMBER: (orderNumber: string) => `/api/orders/${orderNumber}`,
-        GET_ORDERS_BY_USER: (userId: string) => `/api/orders/users/${userId}`
+        GET_ORDERS_BY_USER: (userId: string) => `/api/orders/users/${userId}`,
+        GET_REVENUE_BY_SHOP: (shopId: string, type: string) => `/api/orders/revenue/${shopId}?type=${type}`
     },
     INVENTORY: {
         CREATE: "/api/inventories",
-        GET_BY_PRODUCT_ID: (productId: string) => `/api/inventories?product_id=${productId}`
+        UPDATE_BY_PRODUCT_ID: (productId: string) => `/api/inventories/products/${productId}`,
+        GET_BY_PRODUCT_ID: (productId: string) => `/api/inventories/products/${productId}`
     }
 };

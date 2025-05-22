@@ -2,11 +2,12 @@ import { configureStore } from "@reduxjs/toolkit";
 import accountReducer from "./slices/account";
 import addressReducer from "./slices/addressSlice";
 import cartReducer from "./slices/cartSlice";
-import locationReducer from "./slices/locationSlice";
-import profileReducer from "./slices/profileSlice";
-import productReducer from "./slices/productSlice";
 import discountReducer from "./slices/discountSlice";
+import locationReducer from "./slices/locationSlice";
+import productReducer from "./slices/productSlice";
+import profileReducer from "./slices/profileSlice";
 import orderReducer from "./slices/orderSlice";
+import shopManagerReducer from "./slices/shopManagerSlice";
 
 export const store = configureStore({
     reducer: {
@@ -17,7 +18,8 @@ export const store = configureStore({
         address: addressReducer,
         location: locationReducer,
         product: productReducer,
-        order: orderReducer
+        order: orderReducer,
+        shopManager: shopManagerReducer
         // auth: authReducer,
     }
 });

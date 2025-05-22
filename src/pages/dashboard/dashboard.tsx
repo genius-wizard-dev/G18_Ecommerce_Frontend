@@ -5,6 +5,7 @@ import { useLocation } from "react-router-dom";
 import CouponManagement from "./MenuDashboard/CouponManagement";
 import ProductManagement from "./MenuDashboard/ProductManagement";
 import Sidebar from "./MenuDashboard/Sidebar";
+import ProductStats from "../product.stats";
 
 const Dashboard: React.FC = () => {
     const location = useLocation();
@@ -27,6 +28,7 @@ const Dashboard: React.FC = () => {
             <div className="flex-1 p-10">
                 {activeTab === "products" && <ProductManagement />}
                 {activeTab === "coupons" && <CouponManagement />}
+                {activeTab === "stats" && <ProductStats />}
             </div>
         </div>
     );

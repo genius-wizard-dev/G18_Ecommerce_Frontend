@@ -7,14 +7,6 @@ import { getOrdersByUser } from "@/redux/thunks/order";
 import { Order } from "@/schema/order";
 import DetailsOrderModal from "../order/DetailsOrderModal";
 
-// Danh sách đơn hàng gần đây (mock data)
-const recentOrders = [
-    { id: "ORD-001", date: "2023-11-15", total: 1250000, status: "Đã giao" },
-    { id: "ORD-002", date: "2023-10-28", total: 750000, status: "Đã giao" },
-    { id: "ORD-003", date: "2023-10-15", total: 2150000, status: "Đang giao" },
-    { id: "ORD-004", date: "2023-09-30", total: 450000, status: "Đã hủy" }
-];
-
 export const OrderHistory = ({ user }: { user: Profile }) => {
     const dispatch = useAppDispatch();
     const { orders } = useAppSelector((state) => state.order);

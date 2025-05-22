@@ -118,7 +118,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
                                     isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
                                 )}
                             >
-                                Quản lý phiếu giảm giá
+                                Thống kê doanh thu
                             </span>
                         )}
                         {activeTab === "stats" && !isCollapsed && (

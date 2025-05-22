@@ -2,6 +2,7 @@ import api from "@/lib/axios/api.service";
 import { ENDPOINTS } from "@/lib/axios/endpoint";
 import { Order, OrderLineItem } from "@/schema/order";
 import { ProductInput, ProductResponse } from "@/schema/product";
+import { getImageUrl } from "@/utils/getImage";
 import { useEffect, useState } from "react";
 
 export default function DetailsOrderModal({
@@ -71,10 +72,14 @@ export default function DetailsOrderModal({
                         &times;
                     </button>
                 </div>
-                <ul className="space-y-3">
+                <ul className="space-y-3 overflow-auto max-h-[400px]">
                     {products.map((product: ProductItem) => (
                         <li key={product.productId} className="border p-3 rounded-lg flex justify-between items-center">
-                            <img src={product.image} alt="product" className="h-12 w-12 rounded-full object-cover" />
+                            <img
+                                src={getImageUrl(product.image)}
+                                alt="product"
+                                className="h-12 w-12 rounded-full object-cover"
+                            />
                             <span className="font-semibold">{product.name}</span>
                             <span className="font-semibold text-gray-500">{`X ${product.quantity}`}</span>
                             <span className="font-medium text-red-600">{product.price}</span>

@@ -13,6 +13,7 @@ import { applyDiscount, getDiscountsByShop } from "@/redux/thunks/discount";
 import VoucherCard from "@/components/dicount/VoucherCard";
 import { ApplyDiscountInput, Discount } from "@/schema/discount";
 import { generateTriggerValue } from "@/redux/slices/orderSlice";
+import { getImageUrl } from "@/utils/getImage";
 
 const CartPage = () => {
     const { cartId, items, totalPrice } = useSelector(selectCart);
@@ -23,7 +24,6 @@ const CartPage = () => {
     const [currentCartItemData, setCurrentCartItemData] = useState<UpdateQuantityInput | null>(null);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const [isProcessing, setIsProcessing] = useState(false);
     const [appliedProductIdList, setAppliedProductIdList] = useState<string[]>([]);
     const [appliedProductList, setAppliedProductList] = useState<CartItem[]>([]);
     const [shopList, setShopList] = useState<string[]>([]);
@@ -157,18 +157,6 @@ const CartPage = () => {
         dispatch(deleteCart(userId));
     };
 
-    // Xử lý tiến hành thanh toán
-    const handleCheckout = () => {
-        setIsProcessing(true);
-
-        // Giả lập quá trình thanh toán
-        setTimeout(() => {
-            setIsProcessing(false);
-            // Chuyển hướng đến trang thanh toán
-            navigate("/checkout");
-        }, 1500);
-    };
-
     // Nếu giỏ hàng trống
     if (cartItems.length === 0) {
         return (
@@ -215,7 +203,7 @@ const CartPage = () => {
                                         {/* Hình ảnh sản phẩm */}
                                         <div className="h-24 w-24 rounded overflow-hidden flex-shrink-0">
                                             <img
-                                                src={item.image}
+                                                src={getImageUrl(item.image)}
                                                 alt={item.name}
                                                 className="h-full w-full object-cover"
                                             />
@@ -279,6 +267,35 @@ const CartPage = () => {
                                 ))}
                             </div>
                         </div>
+
+                        <div className="flex flex-col mt-8 max-h-[400px] overflow-auto">
+                            {discounts &&
+                                discounts.map((discount: Discount) => {
+                                    const cond1 =
+                                        discount.applied_product_type === "all" &&
+                                        appliedProductList.every(
+                                            (appliedProduct) => appliedProduct.shopId === discount.shop
+                                        );
+
+                                    const cond2 =
+                                        discount.applied_product_type === "specific" &&
+                                        appliedProductList.every((appliedProduct) =>
+                                            discount.applied_product_list.includes(appliedProduct.productId)
+                                        );
+
+                                    if (cond1 || cond2 || appliedProductIdList.length === 0)
+                                        return (
+                                            <VoucherCard
+                                                key={discount._id}
+                                                discount={discount}
+                                                userId={profile.id}
+                                                handleSelectEditedDiscount={null}
+                                                handleApplyDiscount={handleApplyDiscount}
+                                                handleDeleteDiscount={null}
+                                            />
+                                        );
+                                })}
+                        </div>
                     </div>
 
                     {/* Tóm tắt đơn hàng (1/3 chiều rộng ở desktop) */}
@@ -327,10 +344,9 @@ const CartPage = () => {
 
                                 <Button
                                     className="w-full py-6 bg-blue-600 cursor-pointer active:scale-95 text-white"
-                                    disabled={isProcessing}
                                     onClick={handlePlaceOrder}
                                 >
-                                    {isProcessing ? "Đang xử lý..." : "Tiến hành đặt hàng"}
+                                    Tiến hành đặt hàng
                                 </Button>
 
                                 <div className="mt-6">
@@ -341,31 +357,6 @@ const CartPage = () => {
                             </div>
                         </Card>
                     </div>
-                </div>
-
-                <div className="flex flex-col">
-                    {discounts &&
-                        discounts.map((discount: Discount) => {
-                            const cond1 =
-                                discount.applied_product_type === "all" &&
-                                appliedProductList.every((appliedProduct) => appliedProduct.shopId === discount.shop);
-
-                            const cond2 =
-                                discount.applied_product_type === "specific" &&
-                                appliedProductList.every((appliedProduct) =>
-                                    discount.applied_product_list.includes(appliedProduct.productId)
-                                );
-
-                            if (cond1 || cond2 || appliedProductIdList.length === 0)
-                                return (
-                                    <VoucherCard
-                                        key={discount._id}
-                                        discount={discount}
-                                        userId={profile.id}
-                                        handleApplyDiscount={handleApplyDiscount}
-                                    />
-                                );
-                        })}
                 </div>
             </div>
         )

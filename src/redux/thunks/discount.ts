@@ -1,6 +1,14 @@
 import api from "@/lib/axios/api.service";
 import { ENDPOINTS } from "@/lib/axios/endpoint";
-import { ApplyDiscountInput, DicountResponse, Discount } from "@/schema/discount";
+import {
+    ApplyDiscountInput,
+    CreateDiscountInput,
+    DeleteDiscountInput,
+    DeleteDiscountResponse,
+    DicountResponse,
+    Discount,
+    UpdateDiscountInput
+} from "@/schema/discount";
 
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { getCart } from "./cart";
@@ -47,6 +55,50 @@ export const applyDiscount = createAsyncThunk(
 
             dispatch(getCart(userId));
             dispatch(getDiscountsByShop(shopList));
+
+            return res;
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data?.message || "Failed to fetch products");
+        }
+    }
+);
+
+export const createDiscount = createAsyncThunk(
+    "cart/createDiscount",
+    async (createDiscountInput: CreateDiscountInput, { dispatch, rejectWithValue }) => {
+        try {
+            const res = await api.post<DicountResponse>(ENDPOINTS.DISCOUNT.CREATE_DISCOUNT, createDiscountInput);
+            dispatch(getDiscountsByShop([createDiscountInput.shop]));
+            console.log(res);
+            return res;
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data?.message || "Failed to fetch products");
+        }
+    }
+);
+
+export const updateDiscount = createAsyncThunk(
+    "cart/updateDiscount",
+    async (updateDiscountInput: UpdateDiscountInput, { dispatch, rejectWithValue }) => {
+        try {
+            const { discountId, data } = updateDiscountInput;
+            const res = await api.patch<DicountResponse>(ENDPOINTS.DISCOUNT.UPDATE_DISCOUNT(discountId), data);
+            dispatch(getDiscountsByShop([data.shop]));
+            console.log(res);
+            return res;
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data?.message || "Failed to fetch products");
+        }
+    }
+);
+
+export const deleteDiscount = createAsyncThunk(
+    "cart/updateDiscount",
+    async (deleteDiscountInput: DeleteDiscountInput, { dispatch, rejectWithValue }) => {
+        try {
+            const { discountId, shopId } = deleteDiscountInput;
+            const res = await api.delete<DeleteDiscountResponse>(ENDPOINTS.DISCOUNT.DELETE_DISCOUNT(discountId));
+            dispatch(getDiscountsByShop([shopId]));
 
             return res;
         } catch (error: any) {
