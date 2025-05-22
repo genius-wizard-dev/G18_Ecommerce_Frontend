@@ -122,7 +122,7 @@ function App() {
                             <Route path="cart" element={<CartPage />} />
                             <Route path="dashboard" element={<Dashboard />} />
                             <Route path="register-shop" element={<RegisterShop />} />
-                            <Route path="brand-shop" element={<BrandShop />} />
+                            <Route path="brand-shop/:shopId" element={<BrandShop />} />
                             <Route path="stats-shop" element={<ProductStats />} />
                             <Route path="products-search" element={<ProductSearch />} />
                             <Route path="*" element={<NotFound message="Trang bạn đang tìm kiếm không tồn tại" />} />

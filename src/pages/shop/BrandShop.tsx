@@ -1,15 +1,10 @@
 import { Button } from "@/components/ui/button";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { getProducts } from "@/redux/thunks/product";
 import { getShopInfo } from "@/redux/thunks/profile";
 import { Profile } from "@/schema/profile";
+import { getImageUrl } from "@/utils/getImage";
 import { Filter, Loader2, Package, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -26,9 +21,7 @@ const BrandShop = () => {
     // Lọc sản phẩm theo danh mục từ store hiện tại
     useEffect(() => {
         if (shopId) {
-            const filtered = products.filter(
-                (product: any) => product.shopId === shopId
-            );
+            const filtered = products.filter((product: any) => product.shopId === shopId);
             setFilteredProducts(filtered);
         }
     }, [shopId, products]);
@@ -43,7 +36,7 @@ const BrandShop = () => {
                         setShopInfo(data.payload?.result);
                     }
                 }),
-                dispatch(getProducts({ shop: shopId, limit: 50, page: 1 })),
+                dispatch(getProducts({ shop: shopId, limit: 50, page: 1 }))
             ]).finally(() => {
                 setIsFetching(false);
             });
@@ -58,10 +51,7 @@ const BrandShop = () => {
                 return b.price - a.price;
             case "newest":
             default:
-                return (
-                    new Date(b.createdAt).getTime() -
-                    new Date(a.createdAt).getTime()
-                );
+                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         }
     });
 
@@ -71,17 +61,13 @@ const BrandShop = () => {
             <header className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-6 rounded-lg shadow mb-6 mt-2">
                 <div className="flex flex-col md:flex-row items-center justify-center gap-6">
                     <div className="flex items-center">
-                        <h1 className="text-2xl font-bold">
-                            {shopInfo?.shopName}
-                        </h1>
+                        <h1 className="text-2xl font-bold">{shopInfo?.shopName}</h1>
                     </div>
                     <div className="flex flex-wrap items-center gap-x-8 gap-y-2 text-sm text-white">
                         <div className="flex items-center space-x-2">
                             <Package className="h-6 w-6 text-white" />
                             <span className="text-white/90">Sản Phẩm:</span>
-                            <span className="font-semibold text-white">
-                                {products.length}
-                            </span>
+                            <span className="font-semibold text-white">{products.length}</span>
                         </div>
 
                         <div className="flex items-center space-x-2">
@@ -89,11 +75,8 @@ const BrandShop = () => {
                             <span className="text-white/90">Đánh Giá:</span>
                             <span className="font-semibold text-white">
                                 {(
-                                    products.reduce(
-                                        (acc: number, cur: any) =>
-                                            acc + cur.ratings.average,
-                                        0
-                                    ) / products.length
+                                    products.reduce((acc: number, cur: any) => acc + cur.ratings.average, 0) /
+                                    products.length
                                 ).toFixed(1)}
                             </span>
                         </div>
@@ -121,15 +104,11 @@ const BrandShop = () => {
             {isFetching ? (
                 <div className="flex justify-center items-center h-64">
                     <Loader2 className="h-8 w-8 animate-spin text-red-500" />
-                    <span className="ml-2 text-gray-600">
-                        Đang tải sản phẩm...
-                    </span>
+                    <span className="ml-2 text-gray-600">Đang tải sản phẩm...</span>
                 </div>
             ) : showEmptyState ? (
                 <div className="text-center py-12">
-                    <p className="text-gray-500 text-lg">
-                        Không tìm thấy sản phẩm nào trong danh mục này
-                    </p>
+                    <p className="text-gray-500 text-lg">Không tìm thấy sản phẩm nào trong danh mục này</p>
                     <Button className="mt-4" asChild>
                         <Link to="/">Quay lại trang chủ</Link>
                     </Button>
@@ -144,22 +123,16 @@ const BrandShop = () => {
                             >
                                 <div className="overflow-hidden">
                                     <img
-                                        src={product.thumbnailImage}
+                                        src={getImageUrl(product.thumbnailImage)}
                                         alt={product.name}
                                         className="w-full h-40 object-cover transition-transform duration-300 hover:scale-105"
                                     />
                                 </div>
                                 <div className="p-4">
-                                    <h3 className="text-gray-900 font-medium text-sm truncate mb-2">
-                                        {product.name}
-                                    </h3>
-                                    <p className="text-red-500 font-bold text-sm">
-                                        {product.price.toLocaleString()}₫
-                                    </p>
+                                    <h3 className="text-gray-900 font-medium text-sm truncate mb-2">{product.name}</h3>
+                                    <p className="text-red-500 font-bold text-sm">{product.price.toLocaleString()}₫</p>
                                     <button className="mt-3 w-full border border-red-500 text-red-500 hover:bg-red-50 hover:text-red-600 text-sm py-1 rounded">
-                                        <Link to={`/product/${product._id}`}>
-                                            Xem chi tiết
-                                        </Link>
+                                        <Link to={`/product/${product._id}`}>Xem chi tiết</Link>
                                     </button>
                                 </div>
                             </div>
