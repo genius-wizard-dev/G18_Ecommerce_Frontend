@@ -52,7 +52,8 @@ export const ENDPOINTS = {
   CART: {
     GET_CART: (userId: string) => `/api/carts/users/${userId}`,
     ADD_TO_CART: `/api/carts/cart-items`,
-    UPDATE_QUANTITY: (cartId: string) => `/api/carts/cart-items/${cartId}`,
+    UPDATE_QUANTITY: (cartItemId: string) =>
+      `/api/carts/cart-items/${cartItemId}`,
     DELETE_CART_ITEM: (cartItemId: string) =>
       `/api/carts/carts-items/${cartItemId}`,
     DELETE_CART: (userId: string) => `/api/carts/users/${userId}`,
