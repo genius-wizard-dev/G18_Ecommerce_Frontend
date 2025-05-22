@@ -164,19 +164,17 @@ class ApiClient {
               if (
                 refreshResponse.data &&
                 refreshResponse.data.code === 1000 &&
-                refreshResponse.data.result
+                refreshResponse.data.result.token !== "fallback-refresh-token"
               ) {
                 // Lưu token mới
                 const { token } = refreshResponse.data.result;
                 localStorage.setItem("access_token", token);
                 console.log("New access token saved successfully");
 
-                // Cập nhật token trong request hiện tại
                 if (originalRequest.headers) {
                   originalRequest.headers.Authorization = `Bearer ${token}`;
                 }
 
-                // Xử lý tất cả các request đang chờ
                 console.log("Processing queue with new token");
                 ApiClient.processQueue();
                 ApiClient.isRefreshing = false;
