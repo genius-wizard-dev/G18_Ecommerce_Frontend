@@ -90,7 +90,7 @@ const Login = () => {
         try {
           await dispatch(getAccountInfo()).unwrap();
           toast.success("Đăng nhập thành công");
-          navigate("/");
+          window.location.href = "/";
         } catch (infoError) {
           toast.error(
             "Đăng nhập thành công, nhưng không thể tải thông tin tài khoản"
