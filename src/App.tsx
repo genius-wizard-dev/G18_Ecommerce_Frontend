@@ -25,7 +25,8 @@ import { CheckOrderInput, Order, OrderResponse } from "./schema/order";
 import { ENDPOINTS } from "./lib/axios/endpoint";
 import { setPaymentUrl } from "./redux/slices/orderSlice";
 import { getProfile } from "./redux/thunks/profile";
-
+import { ProductSearch } from "./pages/product.search";
+import NotFound from "./components/ui/NotFound";
 const LoadingComponent = () => (
     <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
         <div className="text-lg font-semibold text-gray-700 animate-pulse">Đang tải....</div>
@@ -123,6 +124,8 @@ function App() {
                             <Route path="register-shop" element={<RegisterShop />} />
                             <Route path="brand-shop" element={<BrandShop />} />
                             <Route path="stats-shop" element={<ProductStats />} />
+                            <Route path="products-search" element={<ProductSearch />} />
+                            <Route path="*" element={<NotFound message="Trang bạn đang tìm kiếm không tồn tại" />} />
                         </Route>
                     </Routes>
                 )}
