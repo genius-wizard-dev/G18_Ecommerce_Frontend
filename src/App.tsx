@@ -21,95 +21,128 @@ import { getAccountInfo } from "./redux/thunks/account";
 import { getAllAddress } from "./redux/thunks/address";
 import { getCart } from "./redux/thunks/cart";
 import { getProfile } from "./redux/thunks/profile";
+import { ProductSearch } from "./pages/product.search";
 
 const LoadingComponent = () => (
-  <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
-    <div className="text-lg font-semibold text-gray-700 animate-pulse">
-      Đang tải....
+    <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
+        <div className="text-lg font-semibold text-gray-700 animate-pulse">
+            Đang tải....
+        </div>
+        <div className="mt-2 text-sm text-gray-500 animate-fade-in">
+            Vui lòng chờ trong giây lát
+        </div>
     </div>
-    <div className="mt-2 text-sm text-gray-500 animate-fade-in">
-      Vui lòng chờ trong giây lát
-    </div>
-  </div>
 );
 
 function App() {
-  const [isLogin, setIsLogin] = useState<boolean>(false);
-  const dispatch = useAppDispatch();
-  const { account, isLoading: isAccountLoading } = useAppSelector(
-    (state) => state.account
-  );
-  const { profile, isLoading: isProfileLoading } = useAppSelector(
-    (state) => state.profile
-  );
+    const [isLogin, setIsLogin] = useState<boolean>(false);
+    const dispatch = useAppDispatch();
+    const { account, isLoading: isAccountLoading } = useAppSelector(
+        (state) => state.account
+    );
+    const { profile, isLoading: isProfileLoading } = useAppSelector(
+        (state) => state.profile
+    );
 
-  useEffect(() => {
-    const token = getAccessToken();
-    if (token) {
-      dispatch(getAccountInfo()).then(() => {
-        setIsLogin(true);
-      });
-    }
-  }, [dispatch]);
+    useEffect(() => {
+        const token = getAccessToken();
+        if (token) {
+            dispatch(getAccountInfo()).then(() => {
+                setIsLogin(true);
+            });
+        }
+    }, [dispatch]);
 
-  useEffect(() => {
-    if (account?.id) {
-      dispatch(getProfile(account.id));
-    }
-  }, [dispatch, account]);
+    useEffect(() => {
+        if (account?.id) {
+            dispatch(getProfile(account.id));
+        }
+    }, [dispatch, account]);
 
-  useEffect(() => {
-    if (profile?.id) {
-      dispatch(getAllAddress(profile.id));
-      dispatch(getCart(profile.id));
-    }
-  }, [dispatch, profile]);
-  return (
-    <BrowserRouter>
-      <Suspense fallback={<LoadingComponent />}>
-        {isProfileLoading || isAccountLoading ? (
-          <LoadingComponent />
-        ) : (
-          <Routes>
-            <Route element={<AuthLayout />}>
-              <Route
-                path="login"
-                element={isLogin ? <Navigate to="/" replace /> : <Login />}
-              />
-              <Route
-                path="register"
-                element={isLogin ? <Navigate to="/" replace /> : <Register />}
-              />
-            </Route>
+    useEffect(() => {
+        if (profile?.id) {
+            dispatch(getAllAddress(profile.id));
+            dispatch(getCart(profile.id));
+        }
+    }, [dispatch, profile]);
+    return (
+        <BrowserRouter>
+            <Suspense fallback={<LoadingComponent />}>
+                {isProfileLoading || isAccountLoading ? (
+                    <LoadingComponent />
+                ) : (
+                    <Routes>
+                        <Route element={<AuthLayout />}>
+                            <Route
+                                path="login"
+                                element={
+                                    isLogin ? (
+                                        <Navigate to="/" replace />
+                                    ) : (
+                                        <Login />
+                                    )
+                                }
+                            />
+                            <Route
+                                path="register"
+                                element={
+                                    isLogin ? (
+                                        <Navigate to="/" replace />
+                                    ) : (
+                                        <Register />
+                                    )
+                                }
+                            />
+                        </Route>
 
-            <Route path="/" element={<MainLayout />}>
-              <Route index element={<HomePage />} />
-              <Route path="product/:id" element={<ProductDetails />} />
-              <Route
-                path="category/:categoryId"
-                element={<ProductCategoryPage />}
-              />
-              <Route path="profile" element={<Profile />} />
-              <Route path="cart" element={<CartPage />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="register-shop" element={<RegisterShop />} />
-              <Route path="brand-shop/:shopId" element={<BrandShop />} />
-              <Route path="stats-shop" element={<ProductStats />} />
-              <Route
-                path="*"
-                element={
-                  <NotFound message="Trang bạn đang tìm kiếm không tồn tại" />
-                }
-              />
-            </Route>
+                        <Route path="/" element={<MainLayout />}>
+                            <Route index element={<HomePage />} />
+                            <Route
+                                path="product/:id"
+                                element={<ProductDetails />}
+                            />
+                            <Route
+                                path="products-search"
+                                element={<ProductSearch />}
+                            />
+                            <Route
+                                path="category/:categoryId"
+                                element={<ProductCategoryPage />}
+                            />
+                            <Route path="profile" element={<Profile />} />
+                            <Route path="cart" element={<CartPage />} />
+                            <Route path="dashboard" element={<Dashboard />} />
+                            <Route
+                                path="register-shop"
+                                element={<RegisterShop />}
+                            />
+                            <Route
+                                path="brand-shop/:shopId"
+                                element={<BrandShop />}
+                            />
+                            <Route
+                                path="brand-shop/:shopId"
+                                element={<BrandShop />}
+                            />
+                            <Route
+                                path="stats-shop"
+                                element={<ProductStats />}
+                            />
+                            <Route
+                                path="*"
+                                element={
+                                    <NotFound message="Trang bạn đang tìm kiếm không tồn tại" />
+                                }
+                            />
+                        </Route>
 
-            {/* Xử lý trang không tồn tại */}
-          </Routes>
-        )}
-      </Suspense>
-      <Toaster position="top-right" richColors closeButton />
-    </BrowserRouter>
-  );
+                        {/* Xử lý trang không tồn tại */}
+                    </Routes>
+                )}
+            </Suspense>
+            <Toaster position="top-right" richColors closeButton />
+        </BrowserRouter>
+    );
 }
 
 export default App;

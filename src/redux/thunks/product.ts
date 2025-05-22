@@ -11,9 +11,10 @@ export const getProducts = createAsyncThunk(
       const limit = data?.limit;
       const page = data?.page;
       const category = data?.category;
-
+      const search = data?.searchTerm;
+      
       const response = await api.get<ProductListResponse>(
-        ENDPOINTS.PRODUCT.GET_ALL(page, limit, category)
+        ENDPOINTS.PRODUCT.GET_ALL(page, limit, category, search)
       );
       return response;
     } catch (error: any) {
