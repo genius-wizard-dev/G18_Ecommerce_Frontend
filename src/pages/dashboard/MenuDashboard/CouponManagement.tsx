@@ -12,26 +12,12 @@ import { createDiscount, deleteDiscount, getDiscountsByShop, updateDiscount } fr
 import { CreateDiscountInput, DeleteDiscountInput, Discount, UpdateDiscountInput } from "@/schema/discount";
 import { ProductInput, ProductListResponse } from "@/schema/product";
 import { getImageUrl } from "@/utils/getImage";
-import { Calendar, CreditCard, Pencil, ShoppingCart, Tag, Trash2, User } from "lucide-react";
+import { Calendar, CreditCard, ShoppingCart, Tag, User } from "lucide-react";
 import React, { useEffect, useState } from "react";
-
-interface Coupon {
-    code: string;
-    name: string;
-    discount: number;
-    type: "percentage" | "fixed";
-    minPurchase: number;
-    usageLimit: number;
-    usagePerUser: number;
-    startDate: string;
-    endDate: string;
-    isActive: boolean;
-}
 
 const CouponManagement: React.FC = () => {
     const dispatch = useAppDispatch();
     const { profile } = useAppSelector((state) => state.profile);
-    const [coupons, setCoupons] = useState<Coupon[]>([]);
     const { discounts } = useAppSelector((state) => state.discount);
     const [products, setProducts] = useState<ProductInput[]>([]);
     const [appliedProductList, setAppliedProductList] = useState<string[]>([]);

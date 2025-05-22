@@ -25,7 +25,6 @@ import { CheckOrderInput, Order, OrderResponse } from "./schema/order";
 import { ENDPOINTS } from "./lib/axios/endpoint";
 import { setPaymentUrl } from "./redux/slices/orderSlice";
 import { getProfile } from "./redux/thunks/profile";
-import { ProductSearch } from "./pages/product.search";
 
 const LoadingComponent = () => (
     <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
