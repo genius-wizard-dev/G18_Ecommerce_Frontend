@@ -3,7 +3,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Inventory } from "@/schema/inventory";
 import { ProductInput } from "@/schema/product";
 import { ImageIcon } from "lucide-react";
-import { useState } from "react";
 import ProductItem from "./ProductItem";
 
 interface ProductListProps {
@@ -21,21 +20,18 @@ const ProductList: React.FC<ProductListProps> = ({
   products,
   onEdit,
   onDelete,
-  onToggleActive,
   isLoading,
   isDeleting,
   editId,
   inventoryData,
 }) => {
-  const [activeTab, setActiveTab] = useState("active");
+
 
   // Lọc sản phẩm theo trạng thái active
   const activeProducts = products.filter(
     (product) => product.isActive !== false
   );
-  const inactiveProducts = products.filter(
-    (product) => product.isActive === false
-  );
+
 
   return (
     <Card>
@@ -64,11 +60,9 @@ const ProductList: React.FC<ProductListProps> = ({
                   product={product}
                   onEdit={onEdit}
                   onDelete={onDelete}
-                  onToggleActive={onToggleActive}
                   isLoading={isLoading}
                   isDeleting={isDeleting}
                   editId={editId}
-                  showActiveButton={false}
                   inventory={product._id ? inventoryData[product._id] : null}
                 />
               ))}

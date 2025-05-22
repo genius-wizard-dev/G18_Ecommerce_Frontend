@@ -1,10 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
 import { ChangeEvent, useRef } from "react";
-import { CloudinaryConfig } from "./cloudinary.config";
 
 interface FileUploadProps {
-  config: CloudinaryConfig;
   onSelectFiles: (files: File[]) => void;
   buttonText?: string;
   variant?:
@@ -17,18 +15,15 @@ interface FileUploadProps {
   className?: string;
   multiple?: boolean;
   isUploading?: boolean;
-  setIsUploading?: (isUploading: boolean) => void;
 }
 
 const FileUpload = ({
-  config,
   onSelectFiles,
   buttonText = "Chọn ảnh",
   variant = "outline",
   className = "",
   multiple = true,
   isUploading = false,
-  setIsUploading = () => {},
 }: FileUploadProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 

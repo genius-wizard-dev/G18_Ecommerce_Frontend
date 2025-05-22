@@ -5,14 +5,14 @@ import { addProductToCart, deleteCartItem, getCart } from "../thunks/cart";
 
 // Định nghĩa interface cho item trong giỏ hàng
 export interface CartItem {
-    productId: string;
-    shopId: string;
-    id: string;
-    name: string;
-    price: number;
-    image: string;
-    quantity: number;
-    appliedDiscount: boolean;
+  productId: string;
+  shopId: string;
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  quantity: number;
+  appliedDiscount: boolean;
 }
 
 export interface CartItemBody {
@@ -28,7 +28,6 @@ interface CartState {
   items: CartItem[];
   isOpen: boolean;
   totalPrice: number;
-  
 }
 
 const initialState: CartState = {
@@ -117,10 +116,10 @@ export const cartSlice = createSlice({
           state.cartId = cartId;
         }
       )
-      .addCase(addProductToCart.fulfilled, (state, action) => {
+      .addCase(addProductToCart.fulfilled, () => {
         console.log("Add product to cart successful");
       })
-      .addCase(deleteCartItem.fulfilled, (state, action) => {
+      .addCase(deleteCartItem.fulfilled, () => {
         console.log("Delete cart item successful");
       });
   },

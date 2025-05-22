@@ -159,7 +159,7 @@ const shopManagerSlice = createSlice({
 
     // Xử lý delete product
     builder.addCase(deleteProduct.pending, (state, action) => {
-      state.isDeleting = action.meta.arg;
+      state.isDeleting = action.meta.arg.id;
       state.error = null;
     });
     builder.addCase(deleteProduct.fulfilled, (state, action) => {

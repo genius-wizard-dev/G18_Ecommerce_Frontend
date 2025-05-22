@@ -12,6 +12,7 @@ export const ProfileSchema = z.object({
   shopName: z.string(),
   isShop: z.boolean(),
   birthDay: z.any(),
+  avatar: z.string().url(),
 });
 
 export const ProfileResponseSchema = z.object({
