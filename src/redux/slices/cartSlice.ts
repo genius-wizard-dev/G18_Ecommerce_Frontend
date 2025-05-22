@@ -111,10 +111,10 @@ export const cartSlice = createSlice({
                     state.cartId = cartId;
                 }
             )
-            .addCase(addProductToCart.fulfilled, (state, action) => {
+            .addCase(addProductToCart.fulfilled, () => {
                 console.log("Add product to cart successful");
             })
-            .addCase(deleteCartItem.fulfilled, (state, action) => {
+            .addCase(deleteCartItem.fulfilled, () => {
                 console.log("Delete cart item successful");
             });
     }

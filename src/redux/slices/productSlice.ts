@@ -1,6 +1,6 @@
+import { ProductListResponse } from "@/schema/product";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { getCurrentProduct, getProducts } from "../thunks/product";
-import { ProductListResponse } from "@/schema/product";
 
 interface ProfileState {
     products: any;

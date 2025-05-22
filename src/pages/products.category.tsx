@@ -123,7 +123,6 @@ const ProductCategoryPage = () => {
     }
   });
 
-  const showLoading = isLoading && filteredProducts.length === 0;
   const showEmptyState = !isLoading && filteredProducts.length === 0;
 
   return (
@@ -148,7 +147,7 @@ const ProductCategoryPage = () => {
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Sắp xếp" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white">
             <SelectItem value="newest">Mới nhất</SelectItem>
             <SelectItem value="price-asc">Giá tăng dần</SelectItem>
             <SelectItem value="price-desc">Giá giảm dần</SelectItem>
@@ -156,7 +155,7 @@ const ProductCategoryPage = () => {
         </Select>
       </div>
 
-      {showLoading ? (
+      {isFetching ? (
         <div className="flex justify-center items-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-red-500" />
           <span className="ml-2 text-gray-600">Đang tải sản phẩm...</span>

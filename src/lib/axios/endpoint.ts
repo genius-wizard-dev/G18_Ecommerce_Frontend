@@ -13,7 +13,8 @@ export const ENDPOINTS = {
     PROFILE: {
         INFO: (userId: string) => `/profile/${userId}`,
         REGISTER_SHOP: (profileId: string) => `/profile/register-shop/${profileId}`,
-        CHECK_SHOP: (userId: string) => `/profile/check-shop/${userId}`
+        CHECK_SHOP: (userId: string) => `/profile/check-shop/${userId}`,
+        SHOP_INFO: (shopId: string) => `/profile/shop/${shopId}`
     },
     ADDRESS: {
         CREATE: (profileId: string) => `/profile/address/create/${profileId}`,
@@ -25,13 +26,14 @@ export const ENDPOINTS = {
     },
     PRODUCT: {
         CREATE: "/api/products",
-        GET_ALL: (page?: number, limit?: number, category?: string) =>
+        GET_ALL: (page?: number, limit?: number, category?: string, search?: string) =>
             `/api/products${
-                page || limit || category
+                page || limit || category || search
                     ? `?${[
                           page ? `page=${page}` : "",
                           limit ? `limit=${limit}` : "",
-                          category ? `category=${category}` : ""
+                          category ? `category=${category}` : "",
+                          search ? `search=${search}` : ""
                       ]
                           .filter(Boolean)
                           .join("&")}`
@@ -58,14 +60,17 @@ export const ENDPOINTS = {
         UPDATE_DISCOUNT: (discountId: string) => `/api/discounts/${discountId}`,
         DELETE_DISCOUNT: (discountId: string) => `/api/discounts/${discountId}`
     },
-    ORDER: {
-        GET_ORDER_BY_ORDER_NUMBER: (orderNumber: string) => `/api/orders/${orderNumber}`,
-        GET_ORDERS_BY_USER: (userId: string) => `/api/orders/users/${userId}`,
-        GET_REVENUE_BY_SHOP: (shopId: string, type: string) => `/api/orders/revenue/${shopId}?type=${type}`
-    },
     INVENTORY: {
         CREATE: "/api/inventories",
         UPDATE_BY_PRODUCT_ID: (productId: string) => `/api/inventories/products/${productId}`,
         GET_BY_PRODUCT_ID: (productId: string) => `/api/inventories/products/${productId}`
+    },
+    AI: {
+        GENERATE_DESCRIPTION: "/api/ai/generate-description"
+    },
+    ORDER: {
+        GET_ORDER_BY_ORDER_NUMBER: (orderNumber: string) => `/api/orders/${orderNumber}`,
+        GET_ORDERS_BY_USER: (userId: string) => `/api/orders/users/${userId}`,
+        GET_REVENUE_BY_SHOP: (shopId: string, type: string) => `/api/orders/revenue/${shopId}?type=${type}`
     }
 };

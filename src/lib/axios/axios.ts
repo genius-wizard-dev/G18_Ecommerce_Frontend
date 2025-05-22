@@ -42,42 +42,39 @@ class ApiClient {
 
       ApiClient.instance.interceptors.request.use(
         async (config: InternalAxiosRequestConfig) => {
-          // const publicEndpoints = [
-          //   ENDPOINTS.AUTH.REFRESH,
-          //   ENDPOINTS.AUTH.LOGIN,
-          //   ENDPOINTS.AUTH.REGISTER,
-          //   ENDPOINTS.AUTH.LOGOUT,
-          // ];
+          const publicEndpoints = [
+            ENDPOINTS.AUTH.REFRESH,
+            ENDPOINTS.AUTH.LOGIN,
+            ENDPOINTS.AUTH.REGISTER,
+            ENDPOINTS.AUTH.LOGOUT,
+          ];
 
-          // const isPublicRequest = publicEndpoints.some((endpoint) =>
-          //   config.url?.includes(endpoint)
-          // );
+          const isPublicRequest = publicEndpoints.some((endpoint) =>
+            config.url?.includes(endpoint)
+          );
 
-          // if (!isPublicRequest) {
-          //   const token = localStorage.getItem("access_token");
-          //   if (token && config.headers) {
-          //     config.headers.Authorization = `Bearer ${token}`;
-          //     try {
-          //       const introspectResponse = await axios.post(
-          //         `${import.meta.env.VITE_API_URL}${ENDPOINTS.AUTH.INTROSPECT}`,
-          //         { token }
-          //       );
-          //       if (
-          //         introspectResponse.data?.code === 1000 &&
-          //         introspectResponse.data?.result?.valid === false
-          //       ) {
-          //         localStorage.removeItem("access_token");
-          //         window.location.reload();
-          //       }
-          //     } catch (error) {
-          //       console.error("Introspect API error:", error);
-          //     }
-          //   }
-          // }
-          const token = localStorage.getItem("access_token");
-          if (token && config.headers) {
-            config.headers.Authorization = `Bearer ${token}`;
+          if (!isPublicRequest) {
+            const token = localStorage.getItem("access_token");
+            if (token && config.headers) {
+              config.headers.Authorization = `Bearer ${token}`;
+              try {
+                const introspectResponse = await axios.post(
+                  `${import.meta.env.VITE_API_URL}${ENDPOINTS.AUTH.INTROSPECT}`,
+                  { token }
+                );
+                if (
+                  introspectResponse.data?.code === 1000 &&
+                  introspectResponse.data?.result?.valid === false
+                ) {
+                  localStorage.removeItem("access_token");
+                  window.location.reload();
+                }
+              } catch (error) {
+                console.error("Introspect API error:", error);
+              }
+            }
           }
+
           return config;
         },
         (error) => {
@@ -92,7 +89,6 @@ class ApiClient {
           const originalRequest = error.config as InternalAxiosRequestConfig & {
             _retry?: boolean;
           };
-
           if (
             error.response?.status === 401 &&
             originalRequest &&
@@ -140,7 +136,6 @@ class ApiClient {
               console.log(`Access token exists: ${!!token}`);
 
               if (!token) {
-                // Không có refresh token, từ chối request
                 console.log("No access token available, rejecting request");
                 ApiClient.processQueue(error);
                 ApiClient.isRefreshing = false;
@@ -193,6 +188,7 @@ class ApiClient {
                 ApiClient.processQueue(error);
                 ApiClient.isRefreshing = false;
                 localStorage.removeItem("access_token");
+                window.location.reload();
                 return Promise.reject(error);
               }
             } catch (refreshError: any) {
@@ -203,6 +199,8 @@ class ApiClient {
               );
               ApiClient.processQueue(refreshError);
               ApiClient.isRefreshing = false;
+              localStorage.removeItem("access_token");
+              window.location.reload();
               return Promise.reject(refreshError);
             }
           } else if (error.response?.status === 401) {

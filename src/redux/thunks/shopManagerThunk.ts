@@ -231,6 +231,11 @@ interface ToggleProductActivePayload {
   isActive: boolean;
 }
 
+interface DeleteProduct {
+  id: string;
+  shopId: string;
+}
+
 // Cập nhật trạng thái active của sản phẩm
 export const toggleProductActive = createAsyncThunk(
   "shopManager/toggleProductActive",
@@ -276,23 +281,27 @@ export const toggleProductActive = createAsyncThunk(
 // Xóa sản phẩm (đặt isActive = false)
 export const deleteProduct = createAsyncThunk(
   "shopManager/deleteProduct",
-  async (productId: string, { rejectWithValue }) => {
+  async (
+    { id, shopId }: DeleteProduct,
+    { rejectWithValue }
+  ) => {
     try {
       // Thực hiện cập nhật trạng thái isActive = false
       const updatedProduct: Partial<ProductInput> = {
         isActive: false,
+        shopId
       };
 
       // Gửi request API để cập nhật sản phẩm
       const response = await api.put<ProductResponse>(
-        ENDPOINTS.PRODUCT.UPDATE(productId),
+        ENDPOINTS.PRODUCT.UPDATE(id),
         updatedProduct
       );
 
       if (response.success) {
         toast.success("Sản phẩm đã được xóa thành công");
         return {
-          _id: productId,
+          _id: id,
           isActive: false,
         };
       }

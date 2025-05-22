@@ -1,3 +1,4 @@
+import { aiService } from "@/ai/models";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,7 +16,6 @@ import {
   ProductCategory,
   ProductInput,
 } from "@/schema/product";
-import { CLOUDINARY_CONFIG } from "@/utils/cloudinary.config";
 import { getImageUrl } from "@/utils/getImage";
 import FileUpload from "@/utils/upload.images.tsx";
 import {
@@ -93,8 +93,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const [attributes, setAttributes] = useState<AttributeRecord>({});
   const [tags, setTags] = useState<string>("");
   // Lưu trữ thuộc tính của sản phẩm đang chỉnh sửa
-  const [selectedProductAttributes, setSelectedProductAttributes] =
-    useState<AttributeRecord | null>(null);
+  const [_, setSelectedProductAttributes] = useState<AttributeRecord | null>(
+    null
+  );
 
   // States cho hình ảnh
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
@@ -171,19 +172,79 @@ const ProductForm: React.FC<ProductFormProps> = ({
   }, [selectedProduct]);
 
   // Xử lý thumbnail image để preview
-  const handleThumbnailUpload = (files: File[]) => {
+  const handleThumbnailUpload = async (files: File[]) => {
     if (files.length > 0) {
       const file = files[0];
-      setThumbnailFile(file);
-      setThumbnailPreview(URL.createObjectURL(file));
+
+      try {
+        // Kiểm tra ảnh trước khi tải lên
+        setIsUploading(true);
+        const response = await aiService.checkProduct(file);
+        setIsUploading(false);
+
+        if (response.isValid) {
+          setThumbnailFile(file);
+          setThumbnailPreview(URL.createObjectURL(file));
+          toast.success("Ảnh hợp lệ, đã thêm vào danh sách.");
+        } else {
+          toast.error(
+            `Ảnh không hợp lệ: ${response.reason || "Chứa nội dung vi phạm"}`
+          );
+        }
+      } catch (error) {
+        console.error("Lỗi khi kiểm tra ảnh:", error);
+        toast.error("Không thể kiểm tra ảnh. Vui lòng thử lại sau.");
+        setIsUploading(false);
+      }
     }
   };
 
   // Xử lý multiple images để preview
-  const handleImagesUpload = (files: File[]) => {
-    setImageFiles((prevFiles) => [...prevFiles, ...files]);
-    const newPreviewUrls = files.map((file) => URL.createObjectURL(file));
-    setImagePreview((prevUrls) => [...prevUrls, ...newPreviewUrls]);
+  const handleImagesUpload = async (files: File[]) => {
+    if (files.length === 0) return;
+
+    setIsUploading(true);
+    const validFiles: File[] = [];
+    const validPreviewUrls: string[] = [];
+
+    try {
+      // Kiểm tra từng ảnh một
+      for (const file of files) {
+        try {
+          const response = await aiService.checkProduct(file);
+
+          if (response.isValid) {
+            validFiles.push(file);
+            validPreviewUrls.push(URL.createObjectURL(file));
+          } else {
+            toast.error(
+              `Ảnh không hợp lệ: ${response.reason || "Chứa nội dung vi phạm"}`
+            );
+          }
+        } catch (error) {
+          console.error("Lỗi khi kiểm tra ảnh:", error);
+        }
+      }
+
+      if (validFiles.length > 0) {
+        setImageFiles((prevFiles) => [...prevFiles, ...validFiles]);
+        setImagePreview((prevUrls) => [...prevUrls, ...validPreviewUrls]);
+        toast.success(`Đã thêm ${validFiles.length} ảnh hợp lệ.`);
+      }
+
+      if (validFiles.length < files.length) {
+        toast.warning(
+          `${
+            files.length - validFiles.length
+          } ảnh đã bị loại bỏ do không hợp lệ.`
+        );
+      }
+    } catch (error) {
+      console.error("Lỗi khi xử lý ảnh:", error);
+      toast.error("Đã xảy ra lỗi khi xử lý ảnh.");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   // Xóa thumbnail image
@@ -285,32 +346,15 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const handleGenerateDescription = async (file: File): Promise<void> => {
     try {
       // Tạo FormData để gửi file
-      const formData = new FormData();
-      formData.append("image", file);
+      const data = await aiService.generateProductDescription(file);
+      console.log(data);
 
-      const response = await fetch(
-        "http://localhost:8000/generate-description",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      const data = await response.json();
-
-      if (data && data.description) {
-        setDescription(data.description);
+      if (data) {
+        setDescription(data);
         toast.success("Đã tạo mô tả tự động thành công!");
       } else {
         toast.error("Không nhận được mô tả từ API");
       }
-
-      // if (response && response.description) {
-      //   setDescription(response.description);
-      //   toast.success("Đã tạo mô tả tự động thành công!");
-      // } else {
-      //   toast.error("Không nhận được mô tả từ API");
-      // }
     } catch (error) {
       console.error("Lỗi khi gọi API tạo mô tả:", error);
       toast.error("Không thể tạo mô tả tự động. Vui lòng thử lại sau.");
@@ -477,12 +521,10 @@ const ProductForm: React.FC<ProductFormProps> = ({
               <div className="flex flex-col gap-2">
                 <div className="flex gap-2">
                   <FileUpload
-                    config={CLOUDINARY_CONFIG}
                     onSelectFiles={handleThumbnailUpload}
                     buttonText="Tải lên hình đại diện"
                     multiple={false}
                     isUploading={isUploading}
-                    setIsUploading={setIsUploading}
                   />
                   {thumbnailPreview && (
                     <Button
@@ -518,12 +560,10 @@ const ProductForm: React.FC<ProductFormProps> = ({
               <Label>Hình ảnh sản phẩm (nhiều)</Label>
               <div className="flex flex-col gap-2">
                 <FileUpload
-                  config={CLOUDINARY_CONFIG}
                   onSelectFiles={handleImagesUpload}
                   buttonText="Tải lên nhiều hình ảnh"
                   multiple={true}
                   isUploading={isUploading}
-                  setIsUploading={setIsUploading}
                 />
 
                 {imagePreview.length > 0 && (

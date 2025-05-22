@@ -9,10 +9,12 @@ import Dashboard from "./pages/dashboard/dashboard";
 import HomePage from "./pages/home";
 import Login from "./pages/login";
 import ProductDetails from "./pages/product.details";
+import ProductStats from "./pages/product.stats";
 import ProductCategoryPage from "./pages/products.category";
 import Profile from "./pages/profile";
 import Register from "./pages/register";
 import RegisterShop from "./pages/register-shop";
+import BrandShop from "./pages/shop/BrandShop";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import { getAccountInfo } from "./redux/thunks/account";
 import { getAllAddress } from "./redux/thunks/address";
@@ -23,8 +25,7 @@ import { CheckOrderInput, Order, OrderResponse } from "./schema/order";
 import { ENDPOINTS } from "./lib/axios/endpoint";
 import { setPaymentUrl } from "./redux/slices/orderSlice";
 import { getProfile } from "./redux/thunks/profile";
-import BrandShop from "./pages/shop/BrandShop";
-import ProductStats from "./pages/product.stats";
+import { ProductSearch } from "./pages/product.search";
 
 const LoadingComponent = () => (
     <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
