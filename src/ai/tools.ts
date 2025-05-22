@@ -87,6 +87,8 @@ export const addProductToCart = tool({
         userId: userId,
       });
 
+      localStorage.setItem("added", (Math.random() + 1).toString());
+
       return result;
     } catch (error) {
       console.error("Lỗi khi thêm sản phẩm vào giỏ hàng:", error);

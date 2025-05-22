@@ -1,12 +1,10 @@
-import { Link } from "react-router-dom";
-
 const Banner = () => {
   return (
     <section className="bg-white">
       <div className="container mx-auto px-4 py-5">
         <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-xl overflow-hidden">
           <div className="flex flex-col md:flex-row">
-            <div className="w-full md:w-1/2 p-8 md:p-12 text-white">
+            <div className="w-full md:w-1/2 p-8 md:p-12 text-white mt-16">
               <h1 className="text-3xl md:text-4xl font-bold mb-4">
                 G18 Ecommerce
               </h1>
@@ -18,12 +16,6 @@ const Banner = () => {
                 Giao hàng nhanh chóng và chính sách đổi trả linh hoạt tại G18
                 Ecommerce.
               </p>
-                <Link
-                to="/products"
-                className="inline-block bg-white text-red-500 font-medium py-2 px-6 rounded-lg hover:bg-gray-100 hover:text-red-600 transition-colors shadow-md"
-                >
-                Xem thêm
-                </Link>
             </div>
             <div className="hidden md:block md:w-1/2">
               <img
