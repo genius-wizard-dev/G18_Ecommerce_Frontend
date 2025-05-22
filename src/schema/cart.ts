@@ -52,8 +52,17 @@ export const CartItemInputSchema = z.object({
     appliedDiscount: z.boolean()
 });
 
+export const PlaceOrderInputSchema = z.object({
+    cartId: z.string(),
+    userId: z.string(),
+    paymentMethod: z.string(),
+    currency: z.string(),
+    description: z.string()
+});
+
 export type CartItemInput = z.infer<typeof CartItemInputSchema>;
 export type CartResponse = z.infer<typeof CartResponseSchema>;
 export type CartItemResponse = z.infer<typeof CartItemResponseSchema>;
 export type DeleteCartItemInput = z.infer<typeof DeleteCartItemSchema>;
 export type UpdateQuantityInput = z.infer<typeof UpdateQuantitySchema>;
+export type PlaceOrderInput = z.infer<typeof PlaceOrderInputSchema>;
