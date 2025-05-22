@@ -71,6 +71,7 @@ export const ENDPOINTS = {
     ORDER: {
         GET_ORDER_BY_ORDER_NUMBER: (orderNumber: string) => `/api/orders/${orderNumber}`,
         GET_ORDERS_BY_USER: (userId: string) => `/api/orders/users/${userId}`,
-        GET_REVENUE_BY_SHOP: (shopId: string, type: string) => `/api/orders/revenue/${shopId}?type=${type}`
+        GET_REVENUE_BY_SHOP: (shopId: string, type: string) => `/api/orders/revenue/${shopId}?type=${type}`,
+        GET_TOP_ORDER: (limit: number) => `/api/orders/top-orders${limit ? `?limit=${limit}` : ""}`
     }
 };
