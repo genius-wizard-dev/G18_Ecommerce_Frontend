@@ -30,13 +30,14 @@ export const ENDPOINTS = {
   },
   PRODUCT: {
     CREATE: "/api/products",
-    GET_ALL: (page?: number, limit?: number, category?: string) =>
+    GET_ALL: (page?: number, limit?: number, category?: string, search?: string) =>
       `/api/products${
-        page || limit || category
+        page || limit || category || search
           ? `?${[
               page ? `page=${page}` : "",
               limit ? `limit=${limit}` : "",
               category ? `category=${category}` : "",
+              search ? `search=${search}` : "",
             ]
               .filter(Boolean)
               .join("&")}`
