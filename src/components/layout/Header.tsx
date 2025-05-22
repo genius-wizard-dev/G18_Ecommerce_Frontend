@@ -24,13 +24,13 @@ export default function Header() {
   const navigate = useNavigate();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
-
   const [searchTerm, setSearchTerm] = useState("");
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+  const [isSearchLoading, setIsSearchLoading] = useState(false);
   // Handle click outside to close dropdowns
 
   const { profile } = useAppSelector((state) => state.profile);
@@ -75,21 +75,29 @@ export default function Header() {
       setSuggestions([]);
       setShowSuggestions(false);
       return;
-    }
-
-    // Set a new timeout for debounced search
+    }    // Set a new timeout for debounced search
     searchTimeoutRef.current = setTimeout(async () => {
-      // console.log("Searching for:", value);
-
-      const res = await dispatch(getProducts({ searchTerm: value }));
-      console.log(res);
-
-      // In a real implementation, you would make an actual API call here
-      // For now, filter the mock products
-      const filtered = (res.payload as any).data.products;
-
-      setSuggestions(filtered);
+      // Show loading indicator before fetching
+      setIsSearchLoading(true);
       setShowSuggestions(true);
+      
+      try {
+        // console.log("Searching for:", value);
+        const res = await dispatch(getProducts({ searchTerm: value }));
+        console.log(res);
+
+        // In a real implementation, you would make an actual API call here
+        // For now, filter the mock products
+        const filtered = (res.payload as any).data.products;
+
+        setSuggestions(filtered);
+      } catch (error) {
+        console.error("Error searching products:", error);
+        setSuggestions([]);
+      } finally {
+        // Hide loading indicator after completion
+        setIsSearchLoading(false);
+      }
     }, 1000); // 1 second delay
   };
 
@@ -197,18 +205,25 @@ export default function Header() {
                 onFocus={() => searchTerm.trim() && setShowSuggestions(true)}
                 onKeyDown={handleKeyDown}
               />
-              <BsSearch className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              {/* Search suggestions dropdown */}
+              <BsSearch className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />              {/* Search suggestions dropdown */}
               {showSuggestions && (
                 <div className="absolute mt-1 w-full bg-white rounded-md shadow-lg max-h-96 overflow-y-auto z-50 border">
                   <div className="py-2">
                     <h3 className="px-4 py-1 text-sm font-medium text-gray-500">
-                      {suggestions.length > 0
+                      {isSearchLoading 
+                        ? "Đang tìm kiếm..."
+                        : suggestions.length > 0
                         ? "Sản phẩm gợi ý"
                         : "Không tìm thấy kết quả"}
                     </h3>
 
-                    {suggestions.length > 0 ? (
+                    {isSearchLoading ? (
+                      // Loading indicator
+                      <div className="flex items-center justify-center p-4">
+                        <div className="w-6 h-6 border-2 border-t-2 border-gray-200 border-t-primary rounded-full animate-spin"></div>
+                        <span className="ml-2 text-sm text-gray-600">Đang tìm kiếm...</span>
+                      </div>
+                    ) : suggestions.length > 0 ? (
                       // Show suggestions
                       suggestions.map((product) => (
                         <div
