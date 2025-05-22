@@ -8,11 +8,9 @@ interface ProductItemProps {
   product: ProductInput;
   onEdit: (product: ProductInput) => void;
   onDelete: (id: string) => void;
-  onToggleActive: (id: string, isActive: boolean) => void;
   isLoading: boolean;
   isDeleting: string | null;
   editId: string | null;
-  showActiveButton: boolean;
   inventory: Inventory | null;
 }
 
@@ -20,11 +18,9 @@ const ProductItem: React.FC<ProductItemProps> = ({
   product,
   onEdit,
   onDelete,
-  onToggleActive,
   isLoading,
   isDeleting,
   editId,
-  showActiveButton,
   inventory,
 }) => {
   // Hiển thị placeholder loading khi đang tải dữ liệu

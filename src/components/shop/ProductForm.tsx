@@ -16,7 +16,6 @@ import {
   ProductCategory,
   ProductInput,
 } from "@/schema/product";
-import { CLOUDINARY_CONFIG } from "@/utils/cloudinary.config";
 import { getImageUrl } from "@/utils/getImage";
 import FileUpload from "@/utils/upload.images.tsx";
 import {
@@ -94,8 +93,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const [attributes, setAttributes] = useState<AttributeRecord>({});
   const [tags, setTags] = useState<string>("");
   // Lưu trữ thuộc tính của sản phẩm đang chỉnh sửa
-  const [selectedProductAttributes, setSelectedProductAttributes] =
-    useState<AttributeRecord | null>(null);
+  const [_, setSelectedProductAttributes] = useState<AttributeRecord | null>(
+    null
+  );
 
   // States cho hình ảnh
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
@@ -521,12 +521,10 @@ const ProductForm: React.FC<ProductFormProps> = ({
               <div className="flex flex-col gap-2">
                 <div className="flex gap-2">
                   <FileUpload
-                    config={CLOUDINARY_CONFIG}
                     onSelectFiles={handleThumbnailUpload}
                     buttonText="Tải lên hình đại diện"
                     multiple={false}
                     isUploading={isUploading}
-                    setIsUploading={setIsUploading}
                   />
                   {thumbnailPreview && (
                     <Button
@@ -562,12 +560,10 @@ const ProductForm: React.FC<ProductFormProps> = ({
               <Label>Hình ảnh sản phẩm (nhiều)</Label>
               <div className="flex flex-col gap-2">
                 <FileUpload
-                  config={CLOUDINARY_CONFIG}
                   onSelectFiles={handleImagesUpload}
                   buttonText="Tải lên nhiều hình ảnh"
                   multiple={true}
                   isUploading={isUploading}
-                  setIsUploading={setIsUploading}
                 />
 
                 {imagePreview.length > 0 && (

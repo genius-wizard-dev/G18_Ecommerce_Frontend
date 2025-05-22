@@ -25,7 +25,7 @@ const ProfileSidebar = ({
   };
 
   // Check if user has avatar
-  const hasAvatar = profile?.avatar && profile.avatar.trim() !== "";
+  const hasAvatar = profile?.avatar && typeof profile.avatar === 'string' && profile.avatar.trim() !== "";
 
   return (
     <div className="w-full md:w-1/4">

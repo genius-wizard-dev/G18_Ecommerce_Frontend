@@ -1,22 +1,20 @@
+import { useAppDispatch } from "@/redux/hooks";
 import { useEffect, useState } from "react";
 import { BsCart3 } from "react-icons/bs";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
   closeCart,
   selectCartItemsCount,
-  selectIsCartOpen,
   toggleCart,
 } from "../../redux/slices/cartSlice";
 import { Button } from "./button";
 
 export function CartIcon() {
   const itemCount = useSelector(selectCartItemsCount);
-  const isCartOpen = useSelector(selectIsCartOpen);
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isAnimating, setIsAnimating] = useState(false);
-
+  const dispatch = useAppDispatch();
   // Thêm hiệu ứng bounce khi thêm sản phẩm vào giỏ hàng
   useEffect(() => {
     if (itemCount > 0) {
