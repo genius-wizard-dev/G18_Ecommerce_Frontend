@@ -2,7 +2,14 @@ import { PRODUCT_CATEGORIES } from "@/components/shop/ProductForm";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateObject, generateText } from "ai";
 import { z } from "zod";
-import { addProductToCart, fetchProductByCategory, getTopOrder } from "./tools";
+import {
+  addProductToCart,
+  deleteCartItem,
+  fetchProductByCategory,
+  getCart,
+  getTopOrder,
+  updateCartItem,
+} from "./tools";
 
 // Định nghĩa kiểu dữ liệu cho lịch sử tin nhắn
 interface ChatMessage {
@@ -91,6 +98,9 @@ export class AIService {
           fetchProductByCategory,
           getTopOrder,
           addProductToCart,
+          getCart,
+          updateCartItem,
+          deleteCartItem,
         },
         messages: [
           {
@@ -128,9 +138,11 @@ export class AIService {
           Thông tin người dùng hiện tại: userId=${userId}
 
           Luôn trả lời bằng tiếng Việt, trình bày rõ ràng, hấp dẫn, dùng markdown nếu phù hợp, và sử dụng emoji để tăng tính thân thiện nếu cần.
+          Lưu ý không trả về bất kỳ ID, cartItemId nào ra giao diện hoặc trong câu trả lời, chỉ trả về thông tin sản phẩm, giỏ hàng, hóa đơn.
+          Với các thao tác update hoặc xóa giỏ hàng hãy yêu cầu lấy danh sách sản phẩm trong giỏ hàng trước.
           `,
           },
-          // Thêm lịch sử chat vào trước tin nhắn hiện tại
+
           ...historyMessages,
           {
             role: "user",
