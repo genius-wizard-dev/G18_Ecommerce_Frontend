@@ -5,6 +5,7 @@ import { logout } from "@/redux/thunks/account";
 import { useEffect, useRef, useState } from "react";
 import { BsEnvelope, BsPerson, BsSearch, BsTelephone } from "react-icons/bs";
 import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { CartIcon } from "../ui/cart-icon";
 import { getProducts } from "@/redux/thunks/product";
