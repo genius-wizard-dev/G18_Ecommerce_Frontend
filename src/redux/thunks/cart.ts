@@ -1,10 +1,39 @@
 import api from "@/lib/axios/api.service";
 import { ENDPOINTS } from "@/lib/axios/endpoint";
-import { CartItemInput, CartItemResponse, CartResponse, DeleteCartItemInput, UpdateQuantityInput } from "@/schema/cart";
+import {
+    CartItemInput,
+    CartItemResponse,
+    CartResponse,
+    DeleteCartItemInput,
+    PlaceOrderInput,
+    UpdateQuantityInput
+} from "@/schema/cart";
 import { ProductInput, ProductResponse } from "@/schema/product";
 
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { CartItemBody } from "../slices/cartSlice";
+import { CheckOrderInput, OrderResponse } from "@/schema/order";
+import { setOrderList } from "@/utils/handleOrderList";
+
+export const placeOrder = createAsyncThunk(
+    "cart/placeOrder",
+    async (placeOrderInput: PlaceOrderInput, { rejectWithValue }) => {
+        try {
+            const response = await api.post<OrderResponse>(ENDPOINTS.CART.PLACE_ORDER, placeOrderInput);
+            const { orderNumber } = response.data;
+
+            const orderInput: CheckOrderInput = {
+                orderNumber,
+                timestamp: new Date().getTime()
+            };
+
+            setOrderList(orderInput);
+            return response;
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data?.message || "Failed to fetch products");
+        }
+    }
+);
 
 export const deleteCart = createAsyncThunk("cart/deleteCart", async (userId: string, { dispatch, rejectWithValue }) => {
     try {
